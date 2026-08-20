@@ -8,20 +8,299 @@
 </head>
 
 <body>
-  <main>
-    <nav>
+  <main class="page">
+    <nav class="top-nav">
       <a href="../../">← All tools</a>
+      <span>Temporal Timber / Maintenance</span>
     </nav>
 
-    <h1>Maintenance</h1>
-
-    <div class="placeholder" id="app">
-      <p>
-        This folder is ready for the interactive Maintenance model.
-        The next step is to port the 10×10 shading, maintenance timeline,
-        UV/moisture accumulation, RGB prediction, and visualization into JavaScript.
+    <header class="hero">
+      <p class="eyebrow">TEMPORAL TIMBER</p>
+      <h1>Maintenance</h1>
+      <p class="lede">
+        Predict localized timber weathering from a historical environmental analogue,
+        then change that trajectory through time-stamped coverage interventions.
       </p>
-    </div>
+    </header>
+
+    <section class="step" id="step-location">
+      <div class="step-heading">
+        <span class="step-number">01</span>
+        <div>
+          <h2>Where is the material?</h2>
+          <p>Search for the project location. This sets coordinates and local timezone.</p>
+        </div>
+      </div>
+
+      <div class="row">
+        <label class="field grow">
+          <span>City / place</span>
+          <input id="locationInput" type="search" placeholder="e.g. Cambridge, MA">
+        </label>
+        <button class="primary align-bottom" id="searchLocationButton" type="button">
+          Search
+        </button>
+      </div>
+
+      <div id="locationResults" class="location-results" aria-live="polite"></div>
+      <p id="selectedLocation" class="selection"></p>
+    </section>
+
+    <section class="step locked" id="step-time">
+      <div class="step-heading">
+        <span class="step-number">02</span>
+        <div>
+          <h2>How far forward should we simulate?</h2>
+          <p>
+            The environmental scenario uses the same calendar period from the previous year.
+          </p>
+        </div>
+      </div>
+
+      <div class="time-options" id="timeOptions">
+        <label>
+          <input type="radio" name="horizon" value="1" checked>
+          <span>1 month</span>
+        </label>
+        <label>
+          <input type="radio" name="horizon" value="3">
+          <span>3 months</span>
+        </label>
+        <label>
+          <input type="radio" name="horizon" value="6">
+          <span>6 months</span>
+        </label>
+        <label>
+          <input type="radio" name="horizon" value="12">
+          <span>1 year</span>
+        </label>
+      </div>
+
+      <button class="primary" id="loadEnvironmentButton" type="button">
+        Load historical analogue
+      </button>
+
+      <div id="environmentStatus" class="status" aria-live="polite"></div>
+
+      <div class="metrics hidden" id="environmentMetrics">
+        <div>
+          <span>Prediction period</span>
+          <strong id="predictionPeriodMetric">—</strong>
+        </div>
+        <div>
+          <span>Historical analogue</span>
+          <strong id="historicalPeriodMetric">—</strong>
+        </div>
+        <div>
+          <span>Accumulated UV</span>
+          <strong id="uvMetric">—</strong>
+        </div>
+        <div>
+          <span>Moisture exposure</span>
+          <strong id="moistureMetric">—</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="step locked" id="step-calibration">
+      <div class="step-heading">
+        <span class="step-number">03</span>
+        <div>
+          <h2>RGB calibration</h2>
+          <p>
+            The browser reads the same two timber photographs and converts each into a
+            10×10 average-RGB field.
+          </p>
+        </div>
+      </div>
+
+      <div class="calibration-grid">
+        <label class="upload-box">
+          <span>t-01</span>
+          <input id="imageT0Input" type="file" accept="image/*">
+          <small>Choose calibration image 01</small>
+        </label>
+
+        <label class="upload-box">
+          <span>t-02</span>
+          <input id="imageT1Input" type="file" accept="image/*">
+          <small>Choose calibration image 02 / present state</small>
+        </label>
+      </div>
+
+      <p class="hint">
+        If you put <code>t-01.png</code> and <code>t-02.png</code> inside
+        <code>tools/maintenance/assets/</code>, the page will try to load them automatically.
+      </p>
+
+      <div id="calibrationStatus" class="status" aria-live="polite"></div>
+    </section>
+
+    <section class="step locked" id="step-maintenance">
+      <div class="step-heading">
+        <span class="step-number">04</span>
+        <div>
+          <h2>Coverage patterns + maintenance log</h2>
+          <p>
+            Draw a protection geometry on the 10×10 material field, save it as a pattern,
+            then timestamp when it is added, removed, or replaced.
+          </p>
+        </div>
+      </div>
+
+      <div class="maintenance-layout">
+        <div>
+          <div class="subheading-row">
+            <div>
+              <h3>Pattern editor</h3>
+              <p>Click or drag across cells. Filled cells are protected.</p>
+            </div>
+            <button class="secondary small" id="clearPatternButton" type="button">
+              Clear
+            </button>
+          </div>
+
+          <div
+            id="patternGrid"
+            class="pixel-grid editor-grid"
+            aria-label="10 by 10 coverage pattern editor"
+          ></div>
+
+          <div class="row compact">
+            <label class="field grow">
+              <span>Pattern name</span>
+              <input id="patternNameInput" type="text" value="Pattern A">
+            </label>
+            <button class="primary align-bottom" id="savePatternButton" type="button">
+              Save pattern
+            </button>
+          </div>
+
+          <div class="saved-patterns">
+            <span class="label">Saved patterns</span>
+            <div id="savedPatternList" class="chips"></div>
+          </div>
+        </div>
+
+        <div>
+          <h3>Maintenance event</h3>
+          <p class="section-copy">
+            Each event changes the coverage state from its timestamp onward.
+          </p>
+
+          <div class="event-form">
+            <label class="field">
+              <span>Timestamp</span>
+              <input id="eventDateInput" type="date">
+            </label>
+
+            <label class="field">
+              <span>Action</span>
+              <select id="eventActionInput">
+                <option value="add">Add pattern</option>
+                <option value="remove">Remove pattern</option>
+                <option value="replace">Replace pattern</option>
+              </select>
+            </label>
+
+            <label class="field" id="eventPatternField">
+              <span>Pattern</span>
+              <select id="eventPatternInput"></select>
+            </label>
+
+            <button class="primary" id="addEventButton" type="button">
+              Add to maintenance log
+            </button>
+          </div>
+
+          <div class="log-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Action</th>
+                  <th>Pattern</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="maintenanceLogBody">
+                <tr class="empty-row">
+                  <td colspan="4">No maintenance events yet.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <button class="run-button" id="runSimulationButton" type="button">
+        Run prediction with maintenance
+      </button>
+    </section>
+
+    <section class="step locked" id="step-results">
+      <div class="step-heading">
+        <span class="step-number">05</span>
+        <div>
+          <h2>Predicted material state</h2>
+          <p>
+            Scrub through the period to see how coverage changes local exposure and RGB.
+          </p>
+        </div>
+      </div>
+
+      <div class="result-toolbar">
+        <label class="field grow">
+          <span>Time</span>
+          <input id="daySlider" type="range" min="0" max="30" value="0">
+        </label>
+
+        <div class="current-day">
+          <span id="currentDateLabel">—</span>
+          <strong id="currentDayLabel">t0</strong>
+        </div>
+      </div>
+
+      <div class="result-layout">
+        <div>
+          <div class="result-legend">
+            <span><i class="legend-covered"></i> covered today</span>
+            <span>cell color = predicted RGB</span>
+          </div>
+          <div
+            id="resultGrid"
+            class="pixel-grid result-grid"
+            aria-label="Predicted 10 by 10 timber RGB field"
+          ></div>
+        </div>
+
+        <div class="result-summary">
+          <div>
+            <span>Active pattern</span>
+            <strong id="activePatternMetric">None</strong>
+          </div>
+          <div>
+            <span>Covered cells</span>
+            <strong id="coveredCellsMetric">0 / 100</strong>
+          </div>
+          <div>
+            <span>Mean effective UV</span>
+            <strong id="effectiveUvMetric">0 UVI·h</strong>
+          </div>
+          <div>
+            <span>Mean moisture exposure</span>
+            <strong id="effectiveMoistureMetric">0 %·h</strong>
+          </div>
+        </div>
+      </div>
+
+      <div id="simulationStatus" class="status" aria-live="polite"></div>
+    </section>
+
+    <footer>
+      <a href="../../">← Back to all tools</a>
+      <span>Temporal Timber / Maintenance prototype</span>
+    </footer>
   </main>
 
   <script src="./app.js"></script>
