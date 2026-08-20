@@ -1,6 +1,0 @@
-day,active,pattern,action,note
-0,True,A,install,Install pattern A
-9,False,,remove,Remove shading
-13,True,B,install,Install pattern B
-21,True,C,replace,Replace B with pattern C
-27,False,,remove,Remove shading
