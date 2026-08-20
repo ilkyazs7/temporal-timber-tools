@@ -22,25 +22,14 @@ const GRID_SIZE = 10;
 const CELL_COUNT = GRID_SIZE * GRID_SIZE;
 
 const STARTING_TIMBER_MC = 14.0;
-const CALIBRATION_UV_DOSE = 120.0;
 
-// RGB weathering is intentionally phased so strong darkening develops
-// over roughly 6–8 months rather than saturating in the first weeks.
-//
-// The target dose is derived from the selected location's average daily UV,
-// extrapolated to seven months.  Before that dose is reached, UV is passed
-// through an easing curve.  Coverage still reduces the LOCAL accumulated UV,
-// so protected cells progress more slowly.
+// The observed t-01 → t-02 RGB displacement is one finite empirical
+// response vector. Future exposure controls progress through that vector;
+// it is NOT multiplied by thousands of UVI-hours.
 const TARGET_DARKENING_MONTHS = 7.0;
-const WEATHERING_GAMMA = 2.2;
-
-// Keep the original empirical response magnitude at the target dose.
-// The gamma curve changes WHEN the response happens, not the final direction.
-const WEATHERING_RATE_SCALE = 0.55;
-
-// After the target dose, continue changing only slowly instead of racing
-// immediately into RGB clipping.
-const POST_TARGET_WEATHERING_RATE = 0.12;
+const WEATHERING_GAMMA = 2.4;
+const RGB_RESPONSE_AMPLITUDE = 1.0;
+const MAX_RESPONSE_PROGRESS = 1.20;
 
 const SUN_PROTECTION_EFFICIENCY = 1.0;
 const MOISTURE_PROTECTION_EFFICIENCY = 1.0;
@@ -979,27 +968,26 @@ function togglePlayback() {
 }
 
 
-function phasedRgbUvDose(localUv, targetUvDose) {
+function normalizedWeatheringProgress(localUv, targetUvDose) {
   if (!Number.isFinite(localUv) || localUv <= 0) {
     return 0;
   }
 
   if (!Number.isFinite(targetUvDose) || targetUvDose <= 0) {
-    return localUv;
+    return 0;
   }
 
-  const progress = localUv / targetUvDose;
+  const rawProgress = localUv / targetUvDose;
 
-  if (progress <= 1) {
-    // Slow beginning, stronger response later.
-    return targetUvDose * Math.pow(progress, WEATHERING_GAMMA);
+  if (rawProgress <= 1) {
+    return Math.pow(rawProgress, WEATHERING_GAMMA);
   }
 
-  // Once the target dose is reached, do not let the RGB channels
-  // race toward clipping. Continue at a much slower rate.
-  return (
-    targetUvDose +
-    (localUv - targetUvDose) * POST_TARGET_WEATHERING_RATE
+  const extra = (rawProgress - 1) * 0.08;
+
+  return Math.min(
+    MAX_RESPONSE_PROGRESS,
+    1 + extra
   );
 }
 
@@ -1066,13 +1054,13 @@ function runSimulation() {
     state.effectiveMoisture[day] = moisture;
   }
 
-  const rgbRate = state.rgbT0.map((rgb0, cell) => {
+  const observedRgbChange = state.rgbT0.map((rgb0, cell) => {
     const rgb1 = state.rgbT1[cell];
 
     return [
-      (rgb1[0] - rgb0[0]) / CALIBRATION_UV_DOSE,
-      (rgb1[1] - rgb0[1]) / CALIBRATION_UV_DOSE,
-      (rgb1[2] - rgb0[2]) / CALIBRATION_UV_DOSE,
+      rgb1[0] - rgb0[0],
+      rgb1[1] - rgb0[1],
+      rgb1[2] - rgb0[2],
     ];
   });
 
@@ -1104,38 +1092,27 @@ function runSimulation() {
       (rgbToday, cell) => {
         const localUv = state.effectiveUv[day][cell];
 
-        // This is the key change:
-        // UV still drives the response, but the dose is phased so that
-        // the visual/material change develops over months rather than weeks.
-        const rgbUvDose = phasedRgbUvDose(
-          localUv,
-          targetUvDose
-        );
+        const progress =
+          normalizedWeatheringProgress(
+            localUv,
+            targetUvDose
+          ) * RGB_RESPONSE_AMPLITUDE;
 
-        const rate = rgbRate[cell];
+        const delta = observedRgbChange[cell];
 
         return [
           clamp(
-            rgbToday[0] +
-            rate[0] *
-            rgbUvDose *
-            WEATHERING_RATE_SCALE,
+            rgbToday[0] + delta[0] * progress,
             0,
             255
           ),
           clamp(
-            rgbToday[1] +
-            rate[1] *
-            rgbUvDose *
-            WEATHERING_RATE_SCALE,
+            rgbToday[1] + delta[1] * progress,
             0,
             255
           ),
           clamp(
-            rgbToday[2] +
-            rate[2] *
-            rgbUvDose *
-            WEATHERING_RATE_SCALE,
+            rgbToday[2] + delta[2] * progress,
             0,
             255
           ),
@@ -1155,7 +1132,7 @@ function runSimulation() {
     els.simulationStatus,
     `Simulation complete: ${days} daily exposure steps, ` +
     `${state.events.length} maintenance event(s). ` +
-    `RGB darkening is phased toward ~${TARGET_DARKENING_MONTHS} months.`,
+    `RGB response is normalized and phased toward ~${TARGET_DARKENING_MONTHS} months.`,
     "success"
   );
 
