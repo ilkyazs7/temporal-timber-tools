@@ -688,3 +688,15 @@ footer {
     background: white;
   }
 }
+
+
+.playback-button {
+  min-width: 88px;
+  align-self: end;
+}
+
+@media (max-width: 560px) {
+  .playback-button {
+    width: 100%;
+  }
+}

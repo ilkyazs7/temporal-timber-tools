@@ -23,7 +23,24 @@ const CELL_COUNT = GRID_SIZE * GRID_SIZE;
 
 const STARTING_TIMBER_MC = 14.0;
 const CALIBRATION_UV_DOSE = 120.0;
+
+// RGB weathering is intentionally phased so strong darkening develops
+// over roughly 6–8 months rather than saturating in the first weeks.
+//
+// The target dose is derived from the selected location's average daily UV,
+// extrapolated to seven months.  Before that dose is reached, UV is passed
+// through an easing curve.  Coverage still reduces the LOCAL accumulated UV,
+// so protected cells progress more slowly.
+const TARGET_DARKENING_MONTHS = 7.0;
+const WEATHERING_GAMMA = 2.2;
+
+// Keep the original empirical response magnitude at the target dose.
+// The gamma curve changes WHEN the response happens, not the final direction.
 const WEATHERING_RATE_SCALE = 0.55;
+
+// After the target dose, continue changing only slowly instead of racing
+// immediately into RGB clipping.
+const POST_TARGET_WEATHERING_RATE = 0.12;
 
 const SUN_PROTECTION_EFFICIENCY = 1.0;
 const MOISTURE_PROTECTION_EFFICIENCY = 1.0;
@@ -50,6 +67,10 @@ const state = {
   effectiveMoisture: [],
   rgbStates: [],
 };
+
+let playbackTimer = null;
+let isPlaying = false;
+
 
 const $ = (id) => document.getElementById(id);
 
@@ -89,6 +110,7 @@ const els = {
   runSimulationButton: $("runSimulationButton"),
 
   stepResults: $("step-results"),
+  playButton: $("playButton"),
   daySlider: $("daySlider"),
   currentDateLabel: $("currentDateLabel"),
   currentDayLabel: $("currentDayLabel"),
@@ -889,6 +911,98 @@ function buildCoverageTimeline() {
   };
 }
 
+
+function stopPlayback() {
+  if (playbackTimer) {
+    window.clearInterval(playbackTimer);
+    playbackTimer = null;
+  }
+
+  isPlaying = false;
+
+  if (els.playButton) {
+    els.playButton.textContent =
+      Number(els.daySlider.value) >= Number(els.daySlider.max)
+        ? "Replay"
+        : "Play";
+  }
+}
+
+function startPlayback() {
+  if (!state.rgbStates.length) return;
+
+  stopPlayback();
+
+  const maxDay = Number(els.daySlider.max);
+
+  if (Number(els.daySlider.value) >= maxDay) {
+    els.daySlider.value = "0";
+    renderSimulationDay(0);
+  }
+
+  isPlaying = true;
+  els.playButton.textContent = "Pause";
+
+  // Scale animation speed to period length:
+  // ~8 seconds total for one month, ~12 seconds for a year.
+  const totalDays = Math.max(1, maxDay);
+  const intervalMs = Math.max(
+    35,
+    Math.min(260, Math.round(8500 / totalDays))
+  );
+
+  playbackTimer = window.setInterval(() => {
+    const current = Number(els.daySlider.value);
+
+    if (current >= maxDay) {
+      stopPlayback();
+      return;
+    }
+
+    const next = current + 1;
+
+    els.daySlider.value = String(next);
+    renderSimulationDay(next);
+
+    if (next >= maxDay) {
+      stopPlayback();
+    }
+  }, intervalMs);
+}
+
+function togglePlayback() {
+  if (isPlaying) {
+    stopPlayback();
+  } else {
+    startPlayback();
+  }
+}
+
+
+function phasedRgbUvDose(localUv, targetUvDose) {
+  if (!Number.isFinite(localUv) || localUv <= 0) {
+    return 0;
+  }
+
+  if (!Number.isFinite(targetUvDose) || targetUvDose <= 0) {
+    return localUv;
+  }
+
+  const progress = localUv / targetUvDose;
+
+  if (progress <= 1) {
+    // Slow beginning, stronger response later.
+    return targetUvDose * Math.pow(progress, WEATHERING_GAMMA);
+  }
+
+  // Once the target dose is reached, do not let the RGB channels
+  // race toward clipping. Continue at a much slower rate.
+  return (
+    targetUvDose +
+    (localUv - targetUvDose) * POST_TARGET_WEATHERING_RATE
+  );
+}
+
 function runSimulation() {
   if (!state.dailyEnvironment.length) {
     alert("Load environmental data first.");
@@ -962,19 +1076,49 @@ function runSimulation() {
     ];
   });
 
+  // Build a climate-specific UV timescale.
+  //
+  // Example:
+  // average local daily UV exposure × ~30.44 days × 7 months
+  //
+  // This is the unprotected reference dose that corresponds to the
+  // intended strong-weathering timescale. Covered cells will accumulate
+  // less than this dose and therefore remain lighter for longer.
+  const totalBaseUv = state.dailyEnvironment.reduce(
+    (sum, environment) => sum + environment.uvIncrement,
+    0
+  );
+
+  const meanDailyBaseUv =
+    totalBaseUv / Math.max(1, state.dailyEnvironment.length);
+
+  const targetUvDose =
+    meanDailyBaseUv *
+    30.4375 *
+    TARGET_DARKENING_MONTHS;
+
   state.rgbStates = new Array(days + 1);
 
   for (let day = 0; day <= days; day += 1) {
     state.rgbStates[day] = state.rgbT1.map(
       (rgbToday, cell) => {
         const localUv = state.effectiveUv[day][cell];
+
+        // This is the key change:
+        // UV still drives the response, but the dose is phased so that
+        // the visual/material change develops over months rather than weeks.
+        const rgbUvDose = phasedRgbUvDose(
+          localUv,
+          targetUvDose
+        );
+
         const rate = rgbRate[cell];
 
         return [
           clamp(
             rgbToday[0] +
             rate[0] *
-            localUv *
+            rgbUvDose *
             WEATHERING_RATE_SCALE,
             0,
             255
@@ -982,7 +1126,7 @@ function runSimulation() {
           clamp(
             rgbToday[1] +
             rate[1] *
-            localUv *
+            rgbUvDose *
             WEATHERING_RATE_SCALE,
             0,
             255
@@ -990,7 +1134,7 @@ function runSimulation() {
           clamp(
             rgbToday[2] +
             rate[2] *
-            localUv *
+            rgbUvDose *
             WEATHERING_RATE_SCALE,
             0,
             255
@@ -1010,7 +1154,8 @@ function runSimulation() {
   setStatus(
     els.simulationStatus,
     `Simulation complete: ${days} daily exposure steps, ` +
-    `${state.events.length} maintenance event(s).`,
+    `${state.events.length} maintenance event(s). ` +
+    `RGB darkening is phased toward ~${TARGET_DARKENING_MONTHS} months.`,
     "success"
   );
 
@@ -1018,6 +1163,11 @@ function runSimulation() {
     behavior: "smooth",
     block: "start",
   });
+
+  // Match the Python GIF behavior: begin playing automatically.
+  window.setTimeout(() => {
+    startPlayback();
+  }, 350);
 }
 
 function buildResultGrid() {
@@ -1575,11 +1725,19 @@ function bindEvents() {
     runSimulation
   );
 
+  els.playButton.addEventListener(
+    "click",
+    togglePlayback
+  );
+
   els.daySlider.addEventListener(
     "input",
-    () => renderSimulationDay(
-      Number(els.daySlider.value)
-    )
+    () => {
+      stopPlayback();
+      renderSimulationDay(
+        Number(els.daySlider.value)
+      );
+    }
   );
 }
 
