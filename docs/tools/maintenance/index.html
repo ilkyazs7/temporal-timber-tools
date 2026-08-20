@@ -187,17 +187,49 @@
         <div>
           <h3>Maintenance event</h3>
           <p class="section-copy">
-            Each event changes the coverage state from its timestamp onward.
+            Place each intervention directly on the prediction timeline.
           </p>
 
           <div class="event-form">
-            <label class="field">
-              <span>Timestamp</span>
-              <input id="eventDateInput" type="date">
-            </label>
+            <div class="field">
+              <span>01 / Position in time</span>
+
+              <div class="maintenance-timeline">
+                <div class="timeline-readout">
+                  <span id="eventTimelineStart">t0</span>
+                  <strong id="eventTimelineSelected">—</strong>
+                  <span id="eventTimelineEnd">t1</span>
+                </div>
+
+                <div class="timeline-track-area">
+                  <div
+                    id="timelineEventMarkers"
+                    class="timeline-event-markers"
+                    aria-hidden="true"
+                  ></div>
+
+                  <input
+                    id="eventTimelineInput"
+                    class="timeline-input"
+                    type="range"
+                    min="0"
+                    max="30"
+                    step="1"
+                    value="0"
+                    aria-label="Maintenance event position in prediction timeline"
+                  >
+                </div>
+
+                <div
+                  id="eventTimelineTicks"
+                  class="timeline-ticks"
+                  aria-hidden="true"
+                ></div>
+              </div>
+            </div>
 
             <label class="field">
-              <span>Action</span>
+              <span>02 / Action</span>
               <select id="eventActionInput">
                 <option value="add">Add pattern</option>
                 <option value="remove">Remove pattern</option>
@@ -206,12 +238,12 @@
             </label>
 
             <label class="field" id="eventPatternField">
-              <span>Pattern</span>
+              <span>03 / Pattern</span>
               <select id="eventPatternInput"></select>
             </label>
 
             <button class="primary" id="addEventButton" type="button">
-              Add to maintenance log
+              04 / Add event
             </button>
           </div>
 

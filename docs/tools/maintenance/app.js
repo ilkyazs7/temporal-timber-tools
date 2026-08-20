@@ -90,7 +90,12 @@ const els = {
   savePatternButton: $("savePatternButton"),
   savedPatternList: $("savedPatternList"),
 
-  eventDateInput: $("eventDateInput"),
+  eventTimelineInput: $("eventTimelineInput"),
+  eventTimelineStart: $("eventTimelineStart"),
+  eventTimelineSelected: $("eventTimelineSelected"),
+  eventTimelineEnd: $("eventTimelineEnd"),
+  eventTimelineTicks: $("eventTimelineTicks"),
+  timelineEventMarkers: $("timelineEventMarkers"),
   eventActionInput: $("eventActionInput"),
   eventPatternInput: $("eventPatternInput"),
   eventPatternField: $("eventPatternField"),
@@ -498,9 +503,146 @@ function renderEnvironmentSummary() {
 }
 
 function configureEventDates() {
-  els.eventDateInput.min = isoDate(state.simulationStart);
-  els.eventDateInput.max = isoDate(state.simulationEnd);
-  els.eventDateInput.value = isoDate(state.simulationStart);
+  const days = Math.max(
+    1,
+    state.dailyEnvironment.length
+  );
+
+  els.eventTimelineInput.min = "0";
+  els.eventTimelineInput.max = String(days - 1);
+  els.eventTimelineInput.step = "1";
+  els.eventTimelineInput.value = "0";
+
+  els.eventTimelineStart.textContent =
+    formatTimelineDate(state.simulationStart);
+
+  els.eventTimelineEnd.textContent =
+    formatTimelineDate(state.simulationEnd);
+
+  renderTimelineTicks();
+  renderTimelineSelection();
+  renderTimelineEventMarkers();
+}
+
+function timelineDateForDay(dayIndex) {
+  if (!state.dailyEnvironment.length) {
+    return state.simulationStart;
+  }
+
+  const index = clamp(
+    Number(dayIndex),
+    0,
+    state.dailyEnvironment.length - 1
+  );
+
+  return parseIsoDate(
+    state.dailyEnvironment[index].simulationDate
+  );
+}
+
+function formatTimelineDate(date) {
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year:
+      state.simulationStart &&
+      state.simulationEnd &&
+      state.simulationStart.getFullYear() !==
+        state.simulationEnd.getFullYear()
+        ? "2-digit"
+        : undefined,
+  }).format(date);
+}
+
+function renderTimelineSelection() {
+  if (!state.dailyEnvironment.length) {
+    els.eventTimelineSelected.textContent = "—";
+    return;
+  }
+
+  const dayIndex = Number(
+    els.eventTimelineInput.value
+  );
+
+  const date = timelineDateForDay(dayIndex);
+
+  els.eventTimelineSelected.textContent =
+    `day ${dayIndex + 1} · ${formatDate(date)}`;
+}
+
+function renderTimelineTicks() {
+  els.eventTimelineTicks.innerHTML = "";
+
+  if (!state.dailyEnvironment.length) {
+    return;
+  }
+
+  const maxDay =
+    state.dailyEnvironment.length - 1;
+
+  // Five quiet reference points, regardless of horizon length.
+  const tickCount = 5;
+
+  for (let i = 0; i < tickCount; i += 1) {
+    const fraction =
+      tickCount === 1
+        ? 0
+        : i / (tickCount - 1);
+
+    const dayIndex = Math.round(
+      fraction * maxDay
+    );
+
+    const date = timelineDateForDay(dayIndex);
+
+    const tick = document.createElement("span");
+    tick.className = "timeline-tick";
+    tick.style.left = `${fraction * 100}%`;
+    tick.textContent = formatTimelineDate(date);
+
+    els.eventTimelineTicks.appendChild(tick);
+  }
+}
+
+function renderTimelineEventMarkers() {
+  els.timelineEventMarkers.innerHTML = "";
+
+  if (!state.dailyEnvironment.length) {
+    return;
+  }
+
+  const maxDay = Math.max(
+    1,
+    state.dailyEnvironment.length - 1
+  );
+
+  for (const event of state.events) {
+    const marker = document.createElement("button");
+    marker.type = "button";
+    marker.className =
+      `timeline-event-marker ${event.action}`;
+
+    marker.style.left =
+      `${(event.dayIndex / maxDay) * 100}%`;
+
+    marker.title =
+      `${event.date} · ${actionLabel(event.action)}` +
+      `${event.pattern ? ` · ${event.pattern}` : ""}`;
+
+    marker.setAttribute(
+      "aria-label",
+      marker.title
+    );
+
+    marker.addEventListener("click", () => {
+      els.eventTimelineInput.value =
+        String(event.dayIndex);
+
+      renderTimelineSelection();
+    });
+
+    els.timelineEventMarkers.appendChild(marker);
+  }
 }
 
 async function tryLoadDefaultCalibrationImages() {
@@ -762,13 +904,16 @@ function addMaintenanceEvent() {
     return;
   }
 
-  const date = els.eventDateInput.value;
-  const action = els.eventActionInput.value;
+  const dayIndex = Number(
+    els.eventTimelineInput.value
+  );
 
-  if (!date) {
-    alert("Choose an event date.");
-    return;
-  }
+  const eventDate = timelineDateForDay(
+    dayIndex
+  );
+
+  const date = isoDate(eventDate);
+  const action = els.eventActionInput.value;
 
   let pattern = null;
 
@@ -781,17 +926,11 @@ function addMaintenanceEvent() {
     }
   }
 
-  const eventDate = parseIsoDate(date);
-  const dayIndex = dateDifferenceInDays(
-    state.simulationStart,
-    eventDate
-  );
-
   if (
     dayIndex < 0 ||
     dayIndex >= state.dailyEnvironment.length
   ) {
-    alert("The event date must fall inside the prediction period.");
+    alert("Choose a position inside the prediction timeline.");
     return;
   }
 
@@ -813,6 +952,7 @@ function addMaintenanceEvent() {
   });
 
   renderMaintenanceLog();
+  renderTimelineEventMarkers();
 }
 
 function renderMaintenanceLog() {
@@ -846,6 +986,7 @@ function renderMaintenanceLog() {
           (item) => item.id !== event.id
         );
         renderMaintenanceLog();
+        renderTimelineEventMarkers();
       }
     );
 
@@ -1685,6 +1826,11 @@ function bindEvents() {
   els.savePatternButton.addEventListener(
     "click",
     savePattern
+  );
+
+  els.eventTimelineInput.addEventListener(
+    "input",
+    renderTimelineSelection
   );
 
   els.eventActionInput.addEventListener(
