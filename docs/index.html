@@ -6,87 +6,42 @@
   <title>Temporal Timber</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
-
 <body>
-  <div id="app">
-    <header id="top">
-      <div class="brand">
-        <span class="brand-kicker">Temporal Timber</span>
-        <span class="brand-title">Material time tools</span>
+  <main class="page">
+    <header class="site-header">
+      <div>
+        <h1>Temporal Timber</h1>
+        <p>
+          Tools for exploring material weathering, maintenance, lifespan,
+          and temporal mismatch.
+        </p>
       </div>
-
-      <div class="spacer"></div>
-
-      <span class="top-meta">Circular design · material biography</span>
     </header>
 
-    <main id="main">
-      <section class="intro">
-        <div class="intro-tag">Tools</div>
-        <h1>Temporal<br>Timber</h1>
-        <p>
-          Two linked tools for reading material time: one models maintenance
-          as a changing environmental intervention, the other explores
-          temporal mismatch across building components.
-        </p>
-      </section>
+    <section class="tools">
+      <a class="tool-link" href="./tools/maintenance/">
+        <div>
+          <span class="label">Tool 01</span>
+          <h2>Maintenance</h2>
+          <p>
+            Predict localized timber weathering and test time-stamped
+            coverage interventions.
+          </p>
+        </div>
+        <span class="arrow">→</span>
+      </a>
 
-      <section class="tool-list" aria-label="Temporal Timber tools">
-        <a class="tool-row" href="./tools/maintenance/">
-          <div class="tool-index">01</div>
-
-          <div class="tool-copy">
-            <div class="tool-tag">Weathering + intervention</div>
-            <h2>Maintenance</h2>
-            <p>
-              Predict RGB, UV and moisture histories across a 10×10 timber field,
-              then add, remove or replace protective coverage through time.
-            </p>
-          </div>
-
-          <div class="tool-open">
-            <span>Open tool</span>
-            <span class="arrow">→</span>
-          </div>
-        </a>
-
-        <a class="tool-row" href="./tools/temporal-mismatch/">
-          <div class="tool-index">02</div>
-
-          <div class="tool-copy">
-            <div class="tool-tag">Lifespan + substitution</div>
-            <h2>Temporal Mismatch</h2>
-            <p>
-              Inspect lifetime, moisture exposure, compatibility and replacement
-              across a spatial CLT material passport.
-            </p>
-          </div>
-
-          <div class="tool-open">
-            <span>Open tool</span>
-            <span class="arrow">→</span>
-          </div>
-        </a>
-      </section>
-    </main>
-
-    <footer id="status">
-      <div class="st">
-        <div class="dot ok"></div>
-        <span>2 tools</span>
-      </div>
-
-      <div class="st">
-        <div class="dot accent2"></div>
-        <span>Temporal material simulation</span>
-      </div>
-
-      <div class="spacer"></div>
-
-      <div class="st">
-        <span>Research prototype</span>
-      </div>
-    </footer>
-  </div>
+      <a class="tool-link" href="./tools/temporal-mismatch/">
+        <div>
+          <span class="label">Tool 02</span>
+          <h2>Temporal Mismatch</h2>
+          <p>
+            Explore differences between component lifespan and building time.
+          </p>
+        </div>
+        <span class="arrow">→</span>
+      </a>
+    </section>
+  </main>
 </body>
 </html>
