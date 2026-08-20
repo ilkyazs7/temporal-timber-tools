@@ -655,3 +655,36 @@ footer {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* ==========================================================
+   v3 — one master figure, matching the Matplotlib composition
+   ========================================================== */
+
+.figure-scroll {
+  width: 100%;
+  overflow-x: auto;
+  padding-bottom: 6px;
+}
+
+.result-figure {
+  display: block;
+  max-width: none;
+  background: white;
+}
+
+.result-layout {
+  display: block;
+}
+
+.result-summary {
+  grid-template-columns: repeat(4, 1fr);
+  margin-top: 24px;
+}
+
+@media (max-width: 900px) {
+  .figure-scroll {
+    border: 1px solid var(--line);
+    background: white;
+  }
+}

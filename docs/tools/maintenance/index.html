@@ -264,16 +264,18 @@
       <div class="result-layout">
         <div>
           <div class="result-legend">
-            <span><i class="legend-covered"></i> covered at selected time</span>
-            <span><i class="legend-moisture"></i> cumulative moisture</span>
-            <span><i class="legend-uv"></i> cumulative UV</span>
-            <span>background = predicted RGB through time</span>
+            <span><i class="legend-covered"></i> covered cell</span>
+            <span><i class="legend-moisture"></i> moisture</span>
+            <span><i class="legend-uv"></i> UV</span>
+            <span>RGB background</span>
           </div>
-          <div
-            id="resultGrid"
-            class="pixel-plot-grid"
-            aria-label="100 temporal timber plots arranged in the original 10 by 10 spatial grid"
-          ></div>
+          <div class="figure-scroll">
+            <canvas
+              id="resultFigure"
+              class="result-figure"
+              aria-label="10 by 10 temporal timber plot matrix"
+            ></canvas>
+          </div>
         </div>
 
         <div class="result-summary">
