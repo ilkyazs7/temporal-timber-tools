@@ -560,3 +560,98 @@ footer {
     text-align: left;
   }
 }
+
+
+/* =========================================================
+   Original Temporal Timber visualization language
+   100 spatial cells = 100 temporal mini-plots
+   ========================================================= */
+
+.pixel-plot-grid {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  width: 100%;
+  gap: 3px;
+  background: transparent;
+}
+
+.pixel-plot {
+  position: relative;
+  min-width: 0;
+  aspect-ratio: 1;
+  border: 1px solid rgba(23, 24, 23, .35);
+  background: #efeee9;
+}
+
+.pixel-plot.covered {
+  border: 3px solid var(--covered);
+}
+
+.pixel-plot canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.pixel-plot-label {
+  position: absolute;
+  left: 3px;
+  top: 2px;
+  z-index: 2;
+  font-size: 7px;
+  line-height: 1;
+  color: rgba(0, 0, 0, .72);
+  pointer-events: none;
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.8),
+    1px 0 0 rgba(255,255,255,.8);
+}
+
+.legend-moisture,
+.legend-uv {
+  display: inline-block;
+  width: 16px;
+  height: 2px;
+  vertical-align: 3px;
+}
+
+.legend-moisture {
+  background: var(--green);
+}
+
+.legend-uv {
+  background: var(--purple);
+}
+
+.result-layout {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.result-summary {
+  grid-template-columns: repeat(4, 1fr);
+  margin-top: 20px;
+}
+
+@media (max-width: 850px) {
+  .pixel-plot-grid {
+    gap: 2px;
+  }
+
+  .result-summary {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .pixel-plot-label {
+    display: none;
+  }
+
+  .pixel-plot-grid {
+    gap: 1px;
+  }
+
+  .result-summary {
+    grid-template-columns: 1fr;
+  }
+}

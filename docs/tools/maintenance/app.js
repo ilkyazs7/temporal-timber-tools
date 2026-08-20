@@ -1023,10 +1023,28 @@ function runSimulation() {
 function buildResultGrid() {
   els.resultGrid.innerHTML = "";
 
-  for (let cell = 0; cell < CELL_COUNT; cell += 1) {
-    const element = document.createElement("div");
-    element.className = "pixel-cell";
-    els.resultGrid.appendChild(element);
+  for (let row = 0; row < GRID_SIZE; row += 1) {
+    for (let col = 0; col < GRID_SIZE; col += 1) {
+      const cell = row * GRID_SIZE + col;
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "pixel-plot";
+      wrapper.dataset.cell = String(cell);
+
+      const canvas = document.createElement("canvas");
+      canvas.setAttribute(
+        "aria-label",
+        `Temporal plot for material cell ${col}, ${row}`
+      );
+
+      const label = document.createElement("span");
+      label.className = "pixel-plot-label";
+      label.textContent = `(${col},${row})`;
+
+      wrapper.appendChild(canvas);
+      wrapper.appendChild(label);
+      els.resultGrid.appendChild(wrapper);
+    }
   }
 }
 
@@ -1039,20 +1057,34 @@ function renderSimulationDay(day) {
     state.dailyEnvironment.length
   );
 
-  const rgb = state.rgbStates[day];
   const coverage = state.coverageStates[day];
   const activePattern = state.activePatternStates[day];
 
+  const uvMax = Math.max(
+    1,
+    ...state.effectiveUv.map((row) => Math.max(...row))
+  );
+
+  const moistureMax = Math.max(
+    1,
+    ...state.effectiveMoisture.map((row) => Math.max(...row))
+  );
+
   [...els.resultGrid.children].forEach(
-    (element, cell) => {
-      const [r, g, b] = rgb[cell];
-
-      element.style.backgroundColor =
-        `rgb(${Math.round(r)}, ${Math.round(g)}, ${Math.round(b)})`;
-
-      element.classList.toggle(
+    (wrapper, cell) => {
+      wrapper.classList.toggle(
         "covered",
         Boolean(coverage[cell])
+      );
+
+      const canvas = wrapper.querySelector("canvas");
+
+      drawPixelTemporalPlot(
+        canvas,
+        cell,
+        day,
+        uvMax,
+        moistureMax
       );
     }
   );
@@ -1086,6 +1118,248 @@ function renderSimulationDay(day) {
 
   els.effectiveMoistureMetric.textContent =
     `${meanMoisture.toFixed(1)} %·h`;
+}
+
+function drawPixelTemporalPlot(
+  canvas,
+  cell,
+  currentDay,
+  uvMax,
+  moistureMax
+) {
+  const rect = canvas.getBoundingClientRect();
+
+  const cssWidth = Math.max(
+    42,
+    Math.round(rect.width || canvas.parentElement.clientWidth || 72)
+  );
+
+  const cssHeight = Math.max(
+    42,
+    Math.round(rect.height || canvas.parentElement.clientHeight || cssWidth)
+  );
+
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+  const targetWidth = Math.round(cssWidth * dpr);
+  const targetHeight = Math.round(cssHeight * dpr);
+
+  if (
+    canvas.width !== targetWidth ||
+    canvas.height !== targetHeight
+  ) {
+    canvas.width = targetWidth;
+    canvas.height = targetHeight;
+  }
+
+  const ctx = canvas.getContext("2d");
+
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, cssWidth, cssHeight);
+
+  const left = 4;
+  const right = cssWidth - 4;
+  const top = 4;
+  const bottom = cssHeight - 9;
+
+  const plotWidth = Math.max(1, right - left);
+  const plotHeight = Math.max(1, bottom - top);
+
+  const totalDays = state.dailyEnvironment.length;
+
+  // ---------------------------------------------------------
+  // RGB temporal background
+  // Fixed t0 -> t1 axis.
+  // Elapsed steps show predicted RGB; future steps stay neutral.
+  // ---------------------------------------------------------
+  ctx.fillStyle = "rgb(239, 238, 233)";
+  ctx.fillRect(left, top, plotWidth, plotHeight);
+
+  const visibleEnd = Math.min(currentDay, totalDays);
+
+  for (let step = 0; step <= visibleEnd; step += 1) {
+    const rgb = state.rgbStates[step][cell];
+
+    const x0 =
+      left +
+      (step / (totalDays + 1)) *
+      plotWidth;
+
+    const x1 =
+      left +
+      ((step + 1) / (totalDays + 1)) *
+      plotWidth;
+
+    ctx.fillStyle =
+      `rgb(${Math.round(rgb[0])}, ` +
+      `${Math.round(rgb[1])}, ` +
+      `${Math.round(rgb[2])})`;
+
+    ctx.fillRect(
+      x0,
+      top,
+      Math.max(1, x1 - x0 + .5),
+      plotHeight
+    );
+  }
+
+  // Light fixed temporal divisions.
+  ctx.strokeStyle = "rgba(0, 0, 0, 0.09)";
+  ctx.lineWidth = 0.5;
+
+  const divisionCount =
+    totalDays <= 31
+      ? totalDays
+      : totalDays <= 100
+        ? Math.ceil(totalDays / 3)
+        : 30;
+
+  for (let i = 1; i < divisionCount; i += 1) {
+    const x =
+      left +
+      (i / divisionCount) *
+      plotWidth;
+
+    ctx.beginPath();
+    ctx.moveTo(x, top);
+    ctx.lineTo(x, bottom);
+    ctx.stroke();
+  }
+
+  // ---------------------------------------------------------
+  // Cumulative moisture — green
+  // ---------------------------------------------------------
+  drawCumulativeSeries(
+    ctx,
+    state.effectiveMoisture,
+    cell,
+    currentDay,
+    moistureMax,
+    left,
+    top,
+    plotWidth,
+    plotHeight,
+    "#356d56"
+  );
+
+  // ---------------------------------------------------------
+  // Cumulative UV — purple
+  // ---------------------------------------------------------
+  drawCumulativeSeries(
+    ctx,
+    state.effectiveUv,
+    cell,
+    currentDay,
+    uvMax,
+    left,
+    top,
+    plotWidth,
+    plotHeight,
+    "#69538a"
+  );
+
+  // Current-time cursor.
+  if (currentDay > 0) {
+    const cursorX =
+      left +
+      (currentDay / totalDays) *
+      plotWidth;
+
+    ctx.strokeStyle = "rgba(0, 0, 0, .35)";
+    ctx.lineWidth = 0.7;
+
+    ctx.beginPath();
+    ctx.moveTo(cursorX, top);
+    ctx.lineTo(cursorX, bottom);
+    ctx.stroke();
+  }
+
+  // Small fixed t0 / t1 labels.
+  ctx.fillStyle = "rgba(0, 0, 0, .72)";
+  ctx.font = "6px ui-monospace, SFMono-Regular, Menlo, monospace";
+  ctx.textBaseline = "alphabetic";
+
+  ctx.textAlign = "left";
+  ctx.fillText("t0", left, cssHeight - 2);
+
+  ctx.textAlign = "right";
+  ctx.fillText("t1", right, cssHeight - 2);
+}
+
+function drawCumulativeSeries(
+  ctx,
+  series,
+  cell,
+  currentDay,
+  maxValue,
+  left,
+  top,
+  plotWidth,
+  plotHeight,
+  color
+) {
+  const totalDays = state.dailyEnvironment.length;
+  const lastDay = Math.min(currentDay, totalDays);
+
+  if (lastDay < 0) return;
+
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1.25;
+  ctx.lineJoin = "round";
+  ctx.lineCap = "round";
+
+  ctx.beginPath();
+
+  for (let step = 0; step <= lastDay; step += 1) {
+    const value = series[step][cell];
+
+    const x =
+      left +
+      (step / totalDays) *
+      plotWidth;
+
+    const normalized =
+      maxValue > 0
+        ? clamp(value / maxValue, 0, 1)
+        : 0;
+
+    const y =
+      top +
+      (1 - normalized) *
+      plotHeight;
+
+    if (step === 0) {
+      ctx.moveTo(x, y);
+    } else {
+      ctx.lineTo(x, y);
+    }
+  }
+
+  ctx.stroke();
+
+  if (lastDay >= 0) {
+    const value = series[lastDay][cell];
+
+    const x =
+      left +
+      (lastDay / totalDays) *
+      plotWidth;
+
+    const normalized =
+      maxValue > 0
+        ? clamp(value / maxValue, 0, 1)
+        : 0;
+
+    const y =
+      top +
+      (1 - normalized) *
+      plotHeight;
+
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x, y, 1.5, 0, Math.PI * 2);
+    ctx.fill();
+  }
 }
 
 function mean(values) {
@@ -1214,6 +1488,21 @@ function bindEvents() {
     )
   );
 }
+
+
+let plotResizeTimer = null;
+
+window.addEventListener("resize", () => {
+  if (!state.rgbStates.length) return;
+
+  window.clearTimeout(plotResizeTimer);
+
+  plotResizeTimer = window.setTimeout(() => {
+    renderSimulationDay(
+      Number(els.daySlider.value)
+    );
+  }, 120);
+});
 
 function init() {
   buildPatternGrid();

@@ -264,13 +264,15 @@
       <div class="result-layout">
         <div>
           <div class="result-legend">
-            <span><i class="legend-covered"></i> covered today</span>
-            <span>cell color = predicted RGB</span>
+            <span><i class="legend-covered"></i> covered at selected time</span>
+            <span><i class="legend-moisture"></i> cumulative moisture</span>
+            <span><i class="legend-uv"></i> cumulative UV</span>
+            <span>background = predicted RGB through time</span>
           </div>
           <div
             id="resultGrid"
-            class="pixel-grid result-grid"
-            aria-label="Predicted 10 by 10 timber RGB field"
+            class="pixel-plot-grid"
+            aria-label="100 temporal timber plots arranged in the original 10 by 10 spatial grid"
           ></div>
         </div>
 
