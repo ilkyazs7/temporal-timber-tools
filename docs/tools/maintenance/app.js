@@ -321,25 +321,19 @@ async function loadEnvironment() {
     "Loading historical environmental analogue…"
   );
 
-  const horizonMonths = selectedHorizonMonths();
+  // the period comes from the year strip (picker.js): a start date and a span in days
+  state.simulationStart = new Date(state.pickedStart);
+  state.simulationEnd = addDays(state.simulationStart, state.pickedDays - 1);
 
-  state.simulationStart = localTodayForTimeZone(state.location.timezone);
-
-  const simulationPeriod = makePeriod(
-    state.simulationStart,
-    horizonMonths
-  );
-
-  state.simulationEnd = simulationPeriod.end;
-
+  // weather analogue: the same calendar dates, shifted back whole years until
+  // the whole window lies safely in the past
+  const safeEnd = addDays(new Date(), -7);
   state.historicalStart = shiftOneYearBack(state.simulationStart);
-
-  const historicalPeriod = makePeriod(
-    state.historicalStart,
-    horizonMonths
-  );
-
-  state.historicalEnd = historicalPeriod.end;
+  state.historicalEnd = addDays(state.historicalStart, state.pickedDays - 1);
+  while (state.historicalEnd > safeEnd) {
+    state.historicalStart = shiftOneYearBack(state.historicalStart);
+    state.historicalEnd = addDays(state.historicalStart, state.pickedDays - 1);
+  }
 
   try {
     const params = new URLSearchParams({
@@ -353,7 +347,7 @@ async function loadEnvironment() {
         "relative_humidity_2m",
         "precipitation",
       ].join(","),
-      timezone: state.location.timezone,
+      timezone: state.location.timezone || "auto",
     });
 
     const response = await fetch(
@@ -1289,33 +1283,19 @@ function runSimulation() {
 }
 
 function buildResultGrid() {
-  // The website now uses one master canvas for the whole 10×10 figure.
-  // This lets us reproduce the Matplotlib composition much more closely.
   sizeResultFigure();
 }
 
 function sizeResultFigure() {
   const canvas = els.resultFigure;
   if (!canvas) return;
-
-  // The original Matplotlib output is essentially square.
-  // Keep a large internal drawing surface so tiny labels/lines stay crisp.
-  const cssWidth = Math.max(
-    900,
-    Math.min(1800, canvas.parentElement?.clientWidth || 1400)
-  );
-
-  const cssHeight = cssWidth * 1.015;
-
-  canvas.style.width = `${cssWidth}px`;
-  canvas.style.height = `${cssHeight}px`;
-
+  const size = Math.round(Math.min(520, canvas.parentElement?.clientWidth || 520));
+  canvas.style.width = `${size}px`;
+  canvas.style.height = `${size}px`;
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  canvas.width = Math.round(cssWidth * dpr);
-  canvas.height = Math.round(cssHeight * dpr);
-
-  canvas.dataset.cssWidth = String(cssWidth);
-  canvas.dataset.cssHeight = String(cssHeight);
+  canvas.width = Math.round(size * dpr);
+  canvas.height = Math.round(size * dpr);
+  canvas.dataset.cssWidth = String(size);
 }
 
 function renderSimulationDay(day) {
@@ -1363,365 +1343,88 @@ function renderSimulationDay(day) {
     `${meanMoisture.toFixed(1)} %·h`;
 }
 
+// the predicted surface, drawn like the matrices of the possibility tree:
+// edge-to-edge colour cells, one thin frame. over each pixel, its own
+// accumulated uv (white, upper band) and moisture (black, lower band) are
+// traced up to the current day.
+// covered cells carry a small black corner mark.
+let SHOW_CURVES = true;
+
 function drawTemporalTimberFigure(currentDay) {
   const canvas = els.resultFigure;
   if (!canvas) return;
-
-  const cssWidth = Number(canvas.dataset.cssWidth || 1400);
-  const cssHeight = Number(canvas.dataset.cssHeight || 1420);
-  const dpr = canvas.width / cssWidth;
-
+  const size = Number(canvas.dataset.cssWidth || 480);
+  const dpr = canvas.width / size;
   const ctx = canvas.getContext("2d");
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, size, size);
 
-  // Matplotlib-like white page.
-  ctx.fillStyle = "#ffffff";
-  ctx.fillRect(0, 0, cssWidth, cssHeight);
-
-  const totalDays = state.dailyEnvironment.length;
+  const cell = size / GRID_SIZE;
+  const rgb = state.rgbStates[currentDay];
   const coverage = state.coverageStates[currentDay];
+  const days = state.dailyEnvironment.length;
 
-  const uvMax = Math.max(
-    1,
-    ...state.effectiveUv.map((row) => Math.max(...row))
-  );
-
-  const moistureMax = Math.max(
-    1,
-    ...state.effectiveMoisture.map((row) => Math.max(...row))
-  );
-
-  // Overall figure layout, intentionally similar to the reference image.
-  const outerLeft = cssWidth * 0.032;
-  const outerRight = cssWidth * 0.025;
-  const outerTop = cssHeight * 0.047;
-  const outerBottom = cssHeight * 0.055;
-
-  const gridWidth = cssWidth - outerLeft - outerRight;
-  const gridHeight = cssHeight - outerTop - outerBottom;
-
-  const colGap = gridWidth * 0.0165;
-  const rowGap = gridHeight * 0.015;
-
-  const cellWidth =
-    (gridWidth - colGap * (GRID_SIZE - 1)) / GRID_SIZE;
-
-  const cellHeight =
-    (gridHeight - rowGap * (GRID_SIZE - 1)) / GRID_SIZE;
-
-  // Figure title.
-  ctx.fillStyle = "#111111";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "alphabetic";
-  ctx.font = `${Math.max(11, cssWidth * 0.0107)}px Arial, sans-serif`;
-
-  ctx.fillText(
-    `Day ${currentDay}/${totalDays} — RGB background | moisture (green) | UV (purple)`,
-    cssWidth / 2,
-    cssHeight * 0.014
-  );
-
-  ctx.font = `${Math.max(10, cssWidth * 0.0093)}px Arial, sans-serif`;
-
-  ctx.fillText(
-    `Covered cells today: ${coverage.filter(Boolean).length}/100`,
-    cssWidth / 2,
-    cssHeight * 0.027
-  );
-
-  // Left overall label.
-  ctx.save();
-  ctx.translate(
-    cssWidth * 0.010,
-    cssHeight / 2
-  );
-  ctx.rotate(-Math.PI / 2);
-  ctx.font = `${Math.max(9, cssWidth * 0.0085)}px Arial, sans-serif`;
-  ctx.fillText("Grid y position", 0, 0);
-  ctx.restore();
-
-  // Bottom overall label.
-  ctx.font = `${Math.max(9, cssWidth * 0.0083)}px Arial, sans-serif`;
-  ctx.textAlign = "center";
-
-  const periodLabel =
-    totalDays <= 31
-      ? "t0 → t1 divided into 30 daily steps"
-      : `t0 → t1 across ${totalDays} daily steps`;
-
-  ctx.fillText(
-    periodLabel,
-    cssWidth / 2,
-    cssHeight * 0.992
-  );
-
-  for (let row = 0; row < GRID_SIZE; row += 1) {
-    for (let col = 0; col < GRID_SIZE; col += 1) {
-      const cell = row * GRID_SIZE + col;
-
-      const x =
-        outerLeft +
-        col * (cellWidth + colGap);
-
-      const y =
-        outerTop +
-        row * (cellHeight + rowGap);
-
-      drawMatplotlibCell(
-        ctx,
-        cell,
-        col,
-        row,
-        x,
-        y,
-        cellWidth,
-        cellHeight,
-        currentDay,
-        totalDays,
-        uvMax,
-        moistureMax,
-        Boolean(coverage[cell])
-      );
-    }
-  }
-}
-
-function drawMatplotlibCell(
-  ctx,
-  cell,
-  col,
-  row,
-  x,
-  y,
-  width,
-  height,
-  currentDay,
-  totalDays,
-  uvMax,
-  moistureMax,
-  isCovered
-) {
-  // Reserve a tiny title strip and x-label strip like the Matplotlib axes.
-  const titleHeight = Math.max(6, height * 0.080);
-  const tickHeight = Math.max(6, height * 0.075);
-
-  const plotX = x;
-  const plotY = y + titleHeight;
-  const plotW = width;
-  const plotH = height - titleHeight - tickHeight;
-
-  // Coordinate label above each mini-axis.
-  ctx.fillStyle = "#111111";
-  ctx.textAlign = "center";
-  ctx.textBaseline = "alphabetic";
-  ctx.font = `${Math.max(5, width * 0.045)}px Arial, sans-serif`;
-  ctx.fillText(
-    `(${col},${row})`,
-    x + width / 2,
-    y + titleHeight * 0.68
-  );
-
-  // Future background = extremely light neutral.
-  ctx.fillStyle = "#f4f4f4";
-  ctx.fillRect(plotX, plotY, plotW, plotH);
-
-  // -------------------------------------------------------
-  // RGB BACKGROUND THROUGH TIME
-  // Unlike the previous web version, this fills the complete
-  // vertical plotting area exactly like the Matplotlib imshow.
-  // -------------------------------------------------------
-  const visibleEnd = Math.min(currentDay, totalDays);
-
-  for (let step = 0; step <= visibleEnd; step += 1) {
-    const rgb = state.rgbStates[step][cell];
-
-    const x0 =
-      plotX +
-      (step / (totalDays + 1)) *
-      plotW;
-
-    const x1 =
-      plotX +
-      ((step + 1) / (totalDays + 1)) *
-      plotW;
-
-    ctx.fillStyle =
-      `rgb(${Math.round(rgb[0])},` +
-      `${Math.round(rgb[1])},` +
-      `${Math.round(rgb[2])})`;
-
-    ctx.fillRect(
-      x0,
-      plotY,
-      Math.max(0.7, x1 - x0 + 0.25),
-      plotH
-    );
+  for (let i = 0; i < CELL_COUNT; i += 1) {
+    const x = (i % GRID_SIZE) * cell;
+    const y = Math.floor(i / GRID_SIZE) * cell;
+    const [r, g, b] = rgb[i].map(Math.round);
+    ctx.fillStyle = `rgb(${r},${g},${b})`;
+    ctx.fillRect(Math.floor(x), Math.floor(y), Math.ceil(cell) + 1, Math.ceil(cell) + 1);
   }
 
-  // Very fine vertical time divisions.
-  // Keep around 30 visible guides regardless of a longer selected horizon.
-  const guideCount = Math.min(30, Math.max(1, totalDays));
+  if (SHOW_CURVES && currentDay > 0) {
+    // one shared scale for every pixel so they can be compared
+    const uvMax = Math.max(1, ...state.effectiveUv[days]);
+    const moistureMax = Math.max(1, ...state.effectiveMoisture[days]);
+    const pad = cell * 0.14;
+    const w = cell - pad * 2, h = cell - pad * 2;
+    const step = Math.max(1, Math.floor(days / 90));
 
-  ctx.strokeStyle = "rgba(0,0,0,0.055)";
-  ctx.lineWidth = 0.35;
+    // uv traced in the upper band of each pixel, moisture in the lower band
+    const band = (h - pad * 0.5) / 2;
+    const trace = (series, max, colour, bandIndex) => {
+      ctx.strokeStyle = colour;
+      ctx.lineWidth = 1.1;
+      for (let i = 0; i < CELL_COUNT; i += 1) {
+        const x0 = (i % GRID_SIZE) * cell + pad;
+        const y0 = Math.floor(i / GRID_SIZE) * cell + pad + band + bandIndex * (band + pad * 0.5);
+        const at = (d) => [x0 + (d / days) * w, y0 - (series[d][i] / max) * band];
+        ctx.beginPath();
+        ctx.moveTo(...at(0));
+        for (let d = step; d < currentDay; d += step) ctx.lineTo(...at(d));
+        ctx.lineTo(...at(currentDay));
+        ctx.stroke();
+      }
+    };
+    trace(state.effectiveUv, uvMax, "rgba(255,255,255,.95)", 0);
+    trace(state.effectiveMoisture, moistureMax, "rgba(0,0,0,.85)", 1);
+  }
 
-  for (let guide = 1; guide < guideCount; guide += 1) {
-    const gx =
-      plotX +
-      (guide / guideCount) *
-      plotW;
-
+  // covered cells: a small corner mark
+  ctx.fillStyle = "#000";
+  const m = Math.max(5, cell * 0.16);
+  for (let i = 0; i < CELL_COUNT; i += 1) {
+    if (!coverage[i]) continue;
+    const x = (i % GRID_SIZE) * cell;
+    const y = Math.floor(i / GRID_SIZE) * cell;
     ctx.beginPath();
-    ctx.moveTo(gx, plotY);
-    ctx.lineTo(gx, plotY + plotH);
-    ctx.stroke();
-  }
-
-  // Cumulative moisture (green).
-  drawMatplotlibSeries(
-    ctx,
-    state.effectiveMoisture,
-    cell,
-    currentDay,
-    totalDays,
-    moistureMax,
-    plotX,
-    plotY,
-    plotW,
-    plotH,
-    "#006d5b"
-  );
-
-  // Cumulative UV (purple).
-  drawMatplotlibSeries(
-    ctx,
-    state.effectiveUv,
-    cell,
-    currentDay,
-    totalDays,
-    uvMax,
-    plotX,
-    plotY,
-    plotW,
-    plotH,
-    "#6f2dbd"
-  );
-
-  // Mini-axis border.
-  ctx.strokeStyle = isCovered
-    ? "#000000"
-    : "rgba(90,90,90,.65)";
-
-  ctx.lineWidth = isCovered
-    ? Math.max(1.8, width * 0.018)
-    : Math.max(0.55, width * 0.006);
-
-  ctx.strokeRect(
-    plotX,
-    plotY,
-    plotW,
-    plotH
-  );
-
-  // t0 / t1 labels exactly under every mini-axis.
-  ctx.fillStyle = "#111111";
-  ctx.font = `${Math.max(4.5, width * 0.038)}px Arial, sans-serif`;
-  ctx.textBaseline = "top";
-
-  ctx.textAlign = "left";
-  ctx.fillText(
-    "t0",
-    plotX,
-    plotY + plotH + 1
-  );
-
-  ctx.textAlign = "right";
-  ctx.fillText(
-    "t1",
-    plotX + plotW,
-    plotY + plotH + 1
-  );
-}
-
-function drawMatplotlibSeries(
-  ctx,
-  series,
-  cell,
-  currentDay,
-  totalDays,
-  maxValue,
-  plotX,
-  plotY,
-  plotW,
-  plotH,
-  color
-) {
-  const lastDay = Math.min(currentDay, totalDays);
-
-  ctx.strokeStyle = color;
-  ctx.fillStyle = color;
-  ctx.lineWidth = Math.max(0.65, plotW * 0.010);
-  ctx.lineJoin = "round";
-  ctx.lineCap = "round";
-
-  ctx.beginPath();
-
-  for (let step = 0; step <= lastDay; step += 1) {
-    const value = series[step][cell];
-
-    const sx =
-      plotX +
-      (step / totalDays) *
-      plotW;
-
-    const normalized =
-      maxValue > 0
-        ? clamp(value / maxValue, 0, 1)
-        : 0;
-
-    const sy =
-      plotY +
-      (1 - normalized) *
-      plotH;
-
-    if (step === 0) {
-      ctx.moveTo(sx, sy);
-    } else {
-      ctx.lineTo(sx, sy);
-    }
-  }
-
-  ctx.stroke();
-
-  // Tiny endpoint dot, like the Matplotlib scatter marker.
-  if (lastDay >= 0) {
-    const value = series[lastDay][cell];
-
-    const sx =
-      plotX +
-      (lastDay / totalDays) *
-      plotW;
-
-    const normalized =
-      maxValue > 0
-        ? clamp(value / maxValue, 0, 1)
-        : 0;
-
-    const sy =
-      plotY +
-      (1 - normalized) *
-      plotH;
-
-    ctx.beginPath();
-    ctx.arc(
-      sx,
-      sy,
-      Math.max(0.8, plotW * 0.012),
-      0,
-      Math.PI * 2
-    );
+    ctx.moveTo(x + cell - m, y);
+    ctx.lineTo(x + cell, y);
+    ctx.lineTo(x + cell, y + m);
+    ctx.closePath();
     ctx.fill();
   }
+
+  ctx.strokeStyle = "#000";
+  ctx.lineWidth = 1;
+  ctx.strokeRect(0.5, 0.5, size - 1, size - 1);
+}
+
+function toggleCurves() {
+  SHOW_CURVES = !SHOW_CURVES;
+  const b = document.getElementById("curvesToggle");
+  if (b) b.textContent = SHOW_CURVES ? "hide curves" : "show curves";
+  if (state.rgbStates.length) renderSimulationDay(Number(els.daySlider.value));
 }
 
 function mean(values) {
@@ -1783,20 +1486,6 @@ function initializeDemoPatterns() {
 }
 
 function bindEvents() {
-  els.searchLocationButton.addEventListener(
-    "click",
-    searchLocation
-  );
-
-  els.locationInput.addEventListener(
-    "keydown",
-    (event) => {
-      if (event.key === "Enter") {
-        searchLocation();
-      }
-    }
-  );
-
   els.loadEnvironmentButton.addEventListener(
     "click",
     loadEnvironment

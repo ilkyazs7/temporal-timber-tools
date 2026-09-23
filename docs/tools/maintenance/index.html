@@ -3,348 +3,172 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Maintenance — Temporal Timber</title>
+  <title>maintenance — temporal timber</title>
+  <link rel="stylesheet" href="../../assets/fonts.css">
   <link rel="stylesheet" href="./style.css">
 </head>
-
 <body>
   <main class="page">
-    <nav class="top-nav">
-      <a href="../../">← All tools</a>
-      <div class="spacer"></div>
-      <span>Temporal Timber / Maintenance</span>
+
+    <nav class="crumbs">
+      <a href="../../">temporal timber</a> <span class="grey">/ maintenance</span>
     </nav>
 
-    <header class="hero">
-      <h1>Maintenance</h1>
-      <p class="lede">
-        Predict localized timber weathering from a historical environmental analogue,
-        then change the trajectory through time-stamped coverage interventions.
-      </p>
+    <header class="intro">
+      <h1>maintenance</h1>
+      <p class="grey">predict how a timber surface weathers, then change its course with timed care.</p>
     </header>
 
-    
-
+    <!-- 01 where -->
     <section class="step" id="step-location">
-      <div class="step-heading">
-        <span class="step-number">01</span>
-        <div>
-          <h2>Where is the material?</h2>
-          <p>Search for the project location. This sets coordinates and local timezone.</p>
-        </div>
-      </div>
-
-      <div class="row">
-        <label class="field grow">
-          <span>City / place</span>
-          <input id="locationInput" type="search" placeholder="e.g. Cambridge, MA">
-        </label>
-        <button class="primary align-bottom" id="searchLocationButton" type="button">
-          Search
-        </button>
-      </div>
-
-      <div id="locationResults" class="location-results" aria-live="polite"></div>
-      <p id="selectedLocation" class="selection"></p>
+      <p class="step-title"><span class="grey">01</span> where</p>
+      <p class="grey">pick a place on the map</p>
+      <div id="dymaxion" class="dymaxion" aria-label="dymaxion map: click land to choose a location"></div>
+      <p id="selectedLocation" class="selection">no place chosen</p>
+      <p id="hoverLocation" class="grey hover-readout">&nbsp;</p>
     </section>
 
+    <!-- 02 when -->
     <section class="step locked" id="step-time">
-      <div class="step-heading">
-        <span class="step-number">02</span>
-        <div>
-          <h2>How far forward should we simulate?</h2>
-          <p>
-            The environmental scenario uses the same calendar period from the previous year.
-          </p>
-        </div>
-      </div>
-
-      <div class="time-options" id="timeOptions">
-        <label>
-          <input type="radio" name="horizon" value="1" checked>
-          <span>1 month</span>
-        </label>
-        <label>
-          <input type="radio" name="horizon" value="3">
-          <span>3 months</span>
-        </label>
-        <label>
-          <input type="radio" name="horizon" value="6">
-          <span>6 months</span>
-        </label>
-        <label>
-          <input type="radio" name="horizon" value="12">
-          <span>1 year</span>
-        </label>
-      </div>
-
-      <button class="primary" id="loadEnvironmentButton" type="button">
-        Load historical analogue
-      </button>
-
+      <p class="step-title"><span class="grey">02</span> when</p>
+      <p class="grey">drag the rectangle to choose the start · pull its right edge to choose the span</p>
+      <div id="yearStrip" class="year-strip"></div>
+      <p id="periodReadout" class="selection">—</p>
+      <button class="primary" id="loadEnvironmentButton" type="button">load weather</button>
       <div id="environmentStatus" class="status" aria-live="polite"></div>
-
       <div class="metrics hidden" id="environmentMetrics">
-        <div>
-          <span>Prediction period</span>
-          <strong id="predictionPeriodMetric">—</strong>
-        </div>
-        <div>
-          <span>Historical analogue</span>
-          <strong id="historicalPeriodMetric">—</strong>
-        </div>
-        <div>
-          <span>Accumulated UV</span>
-          <strong id="uvMetric">—</strong>
-        </div>
-        <div>
-          <span>Moisture exposure</span>
-          <strong id="moistureMetric">—</strong>
-        </div>
+        <div><span class="grey">prediction</span><strong id="predictionPeriodMetric">—</strong></div>
+        <div><span class="grey">weather from</span><strong id="historicalPeriodMetric">—</strong></div>
+        <div><span class="grey">uv</span><strong id="uvMetric">—</strong></div>
+        <div><span class="grey">moisture</span><strong id="moistureMetric">—</strong></div>
       </div>
     </section>
 
+    <!-- 03 surface -->
     <section class="step locked" id="step-calibration">
-      <div class="step-heading">
-        <span class="step-number">03</span>
-        <div>
-          <h2>RGB calibration</h2>
-          <p>
-            The browser reads the same two timber photographs and converts each into a
-            10×10 average-RGB field.
-          </p>
+      <p class="step-title"><span class="grey">03</span> surface</p>
+      <p class="grey">two photographs of the same timber, read as 10×10 colour fields</p>
+      <div class="calibration-grid">
+        <div class="calibration-item">
+          <canvas id="calibrationT0" class="matrix-small" width="10" height="10"></canvas>
+          <p>t-01 · before</p>
+          <label class="link">replace<input id="imageT0Input" type="file" accept="image/*" hidden></label>
+        </div>
+        <div class="calibration-item">
+          <canvas id="calibrationT1" class="matrix-small" width="10" height="10"></canvas>
+          <p>t-02 · now</p>
+          <label class="link">replace<input id="imageT1Input" type="file" accept="image/*" hidden></label>
         </div>
       </div>
-
-      <div class="calibration-grid">
-        <label class="upload-box">
-          <span>t-01</span>
-          <input id="imageT0Input" type="file" accept="image/*">
-          <small>Choose calibration image 01</small>
-        </label>
-
-        <label class="upload-box">
-          <span>t-02</span>
-          <input id="imageT1Input" type="file" accept="image/*">
-          <small>Choose calibration image 02 / present state</small>
-        </label>
-      </div>
-
-      <p class="hint">
-        If you put <code>t-01.png</code> and <code>t-02.png</code> inside
-        <code>tools/maintenance/assets/</code>, the page will try to load them automatically.
-      </p>
-
       <div id="calibrationStatus" class="status" aria-live="polite"></div>
     </section>
 
+    <!-- 04 care -->
     <section class="step locked" id="step-maintenance">
-      <div class="step-heading">
-        <span class="step-number">04</span>
-        <div>
-          <h2>Coverage patterns + maintenance log</h2>
-          <p>
-            Draw a protection geometry on the 10×10 material field, save it as a pattern,
-            then timestamp when it is added, removed, or replaced.
-          </p>
+      <p class="step-title"><span class="grey">04</span> care</p>
+      <p class="grey">draw a cover pattern, then place it in time</p>
+
+      <div class="care-grid">
+        <div class="care-col">
+          <div id="patternGrid" class="pixel-grid editor-grid" aria-label="10 by 10 coverage pattern editor"></div>
+          <div class="inline">
+            <input id="patternNameInput" type="text" value="Pattern A" aria-label="pattern name">
+            <button class="link" id="savePatternButton" type="button">save</button>
+            <button class="link" id="clearPatternButton" type="button">clear</button>
+          </div>
+          <div id="savedPatternList" class="chips"></div>
+        </div>
+
+        <div class="care-col">
+          <div class="maintenance-timeline">
+            <div class="timeline-readout">
+              <span id="eventTimelineStart" class="grey">t0</span>
+              <strong id="eventTimelineSelected">—</strong>
+              <span id="eventTimelineEnd" class="grey">t1</span>
+            </div>
+            <div class="timeline-track-area">
+              <div id="timelineEventMarkers" class="timeline-event-markers" aria-hidden="true"></div>
+              <input id="eventTimelineInput" class="timeline-input" type="range" min="0" max="30" step="1" value="0"
+                aria-label="maintenance event position in the prediction timeline">
+            </div>
+            <div id="eventTimelineTicks" class="timeline-ticks" aria-hidden="true"></div>
+          </div>
+
+          <div class="inline">
+            <select id="eventActionInput" aria-label="action">
+              <option value="add">add</option>
+              <option value="remove">remove</option>
+              <option value="replace">replace</option>
+            </select>
+            <span id="eventPatternField">
+              <select id="eventPatternInput" aria-label="pattern"></select>
+            </span>
+            <button class="link" id="addEventButton" type="button">add event</button>
+          </div>
+
+          <table class="log">
+            <tbody id="maintenanceLogBody">
+              <tr class="empty-row"><td colspan="4">no maintenance events yet</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
-      <div class="maintenance-layout">
-        <div>
-          <div class="subheading-row">
-            <div>
-              <h3>Pattern editor</h3>
-              <p>Click or drag across cells. Filled cells are protected.</p>
-            </div>
-            <button class="secondary small" id="clearPatternButton" type="button">
-              Clear
-            </button>
-          </div>
-
-          <div
-            id="patternGrid"
-            class="pixel-grid editor-grid"
-            aria-label="10 by 10 coverage pattern editor"
-          ></div>
-
-          <div class="row compact">
-            <label class="field grow">
-              <span>Pattern name</span>
-              <input id="patternNameInput" type="text" value="Pattern A">
-            </label>
-            <button class="primary align-bottom" id="savePatternButton" type="button">
-              Save pattern
-            </button>
-          </div>
-
-          <div class="saved-patterns">
-            <span class="label">Saved patterns</span>
-            <div id="savedPatternList" class="chips"></div>
-          </div>
-        </div>
-
-        <div>
-          <h3>Maintenance event</h3>
-          <p class="section-copy">
-            Place each intervention directly on the prediction timeline.
-          </p>
-
-          <div class="event-form">
-            <div class="field">
-              <span>01 / Position in time</span>
-
-              <div class="maintenance-timeline">
-                <div class="timeline-readout">
-                  <span id="eventTimelineStart">t0</span>
-                  <strong id="eventTimelineSelected">—</strong>
-                  <span id="eventTimelineEnd">t1</span>
-                </div>
-
-                <div class="timeline-track-area">
-                  <div
-                    id="timelineEventMarkers"
-                    class="timeline-event-markers"
-                    aria-hidden="true"
-                  ></div>
-
-                  <input
-                    id="eventTimelineInput"
-                    class="timeline-input"
-                    type="range"
-                    min="0"
-                    max="30"
-                    step="1"
-                    value="0"
-                    aria-label="Maintenance event position in prediction timeline"
-                  >
-                </div>
-
-                <div
-                  id="eventTimelineTicks"
-                  class="timeline-ticks"
-                  aria-hidden="true"
-                ></div>
-              </div>
-            </div>
-
-            <label class="field">
-              <span>02 / Action</span>
-              <select id="eventActionInput">
-                <option value="add">Add pattern</option>
-                <option value="remove">Remove pattern</option>
-                <option value="replace">Replace pattern</option>
-              </select>
-            </label>
-
-            <label class="field" id="eventPatternField">
-              <span>03 / Pattern</span>
-              <select id="eventPatternInput"></select>
-            </label>
-
-            <button class="primary" id="addEventButton" type="button">
-              04 / Add event
-            </button>
-          </div>
-
-          <div class="log-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Action</th>
-                  <th>Pattern</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody id="maintenanceLogBody">
-                <tr class="empty-row">
-                  <td colspan="4">No maintenance events yet.</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-      <button class="run-button" id="runSimulationButton" type="button">
-        Run prediction with maintenance
-      </button>
+      <button class="primary" id="runSimulationButton" type="button">run prediction</button>
     </section>
 
+    <!-- 05 prediction -->
     <section class="step locked" id="step-results">
-      <div class="step-heading">
-        <span class="step-number">05</span>
-        <div>
-          <h2>Predicted material state</h2>
-          <p>
-            Scrub through the period to see how coverage changes local exposure and RGB.
-          </p>
-        </div>
-      </div>
+      <p class="step-title"><span class="grey">05</span> prediction</p>
 
       <div class="result-toolbar">
-        <button class="primary playback-button" id="playButton" type="button">
-          Play
-        </button>
-
-        <label class="field grow">
-          <span>Time</span>
-          <input id="daySlider" type="range" min="0" max="30" value="0">
-        </label>
-
-        <div class="current-day">
-          <span id="currentDateLabel">—</span>
-          <strong id="currentDayLabel">t0</strong>
-        </div>
+        <button class="link" id="playButton" type="button">play</button>
+        <input id="daySlider" type="range" min="0" max="30" value="0" aria-label="day">
+        <span class="current-day"><span id="currentDateLabel">—</span> · <span id="currentDayLabel" class="grey">t0</span></span>
       </div>
 
-      <div class="result-layout">
-        <div>
-          <div class="result-legend">
-            <span><i class="legend-covered"></i> covered cell</span>
-            <span><i class="legend-moisture"></i> moisture</span>
-            <span><i class="legend-uv"></i> UV</span>
-            <span>RGB background</span>
-          </div>
-          <div class="figure-scroll">
-            <canvas
-              id="resultFigure"
-              class="result-figure"
-              aria-label="10 by 10 temporal timber plot matrix"
-            ></canvas>
-          </div>
-        </div>
-
-        <div class="result-summary">
-          <div>
-            <span>Active pattern</span>
-            <strong id="activePatternMetric">None</strong>
-          </div>
-          <div>
-            <span>Covered cells</span>
-            <strong id="coveredCellsMetric">0 / 100</strong>
-          </div>
-          <div>
-            <span>Mean effective UV</span>
-            <strong id="effectiveUvMetric">0 UVI·h</strong>
-          </div>
-          <div>
-            <span>Mean moisture exposure</span>
-            <strong id="effectiveMoistureMetric">0 %·h</strong>
-          </div>
-        </div>
+      <canvas id="resultFigure" class="result-figure" aria-label="predicted 10 by 10 surface with uv and moisture traced over each pixel"></canvas>
+      <div class="legend">
+        <span><i class="key key-uv"></i>uv</span>
+        <span><i class="key key-moist"></i>moisture</span>
+        <span><i class="key key-cover"></i>covered</span>
+        <button class="link" id="curvesToggle" type="button" onclick="toggleCurves()">hide curves</button>
       </div>
+      <p id="cellReadout" class="grey hover-readout">&nbsp;</p>
+
+      <div class="metrics">
+        <div><span class="grey">pattern</span><strong id="activePatternMetric">none</strong></div>
+        <div><span class="grey">covered</span><strong id="coveredCellsMetric">0 / 100</strong></div>
+        <div><span class="grey">mean uv</span><strong id="effectiveUvMetric">0</strong></div>
+        <div><span class="grey">mean moisture</span><strong id="effectiveMoistureMetric">0</strong></div>
+      </div>
+
+      <button class="link" id="ptOpenButton" type="button" onclick="ptOpen()" disabled
+        title="every maintenance event opens a parallel reality">possibilities</button>
 
       <div id="simulationStatus" class="status" aria-live="polite"></div>
     </section>
 
     <footer>
-      <a href="../../">← Back to all tools</a>
-      <span>Temporal Timber / Maintenance prototype</span>
+      <a class="grey" href="../../">← temporal timber</a>
     </footer>
   </main>
 
+  <div id="pt-sheet" role="dialog" aria-label="possibilities">
+    <div id="pt-head">
+      <span>possibilities</span>
+      <span class="grey" id="pt-count"></span>
+      <span style="flex:1"></span>
+      <button type="button" onclick="ptDownload()">download svg</button>
+      <button type="button" onclick="ptClose()">close</button>
+    </div>
+    <p id="pt-note">every maintenance event opens a parallel reality · each point shows the surface at that moment (outlined cells are covered) · each line ends with the surface if nothing else is done · click to return to it</p>
+    <div id="pt-tree"></div>
+  </div>
+
+  <script src="./dymaxion.js"></script>
   <script src="./app.js"></script>
+  <script src="./picker.js"></script>
+  <script src="./possibilities.js"></script>
 </body>
 </html>
