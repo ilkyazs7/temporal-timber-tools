@@ -3,56 +3,197 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>temporal timber</title>
-  <meta name="description" content="tools for designing with material lifespans.">
-  <link rel="stylesheet" href="./assets/fonts.css">
-  <link rel="stylesheet" href="./styles.css">
+  <title>temporal timber: an overview</title>
+  <meta name="description" content="time-encoded material passports for circular design: the research behind the temporal timber tools.">
+  <link rel="stylesheet" href="../assets/fonts.css">
+  <style>
+    *{ box-sizing:border-box; margin:0; padding:0; }
+    html, body{ background:#fff; color:#000; }
+    body{
+      font-family:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+      font-size:13px; line-height:1.7; text-align:center; text-transform:lowercase;
+      -webkit-font-smoothing:antialiased; padding:0 24px;
+    }
+    a{ color:inherit; text-decoration:none; }
+    a:hover{ text-decoration:underline; text-underline-offset:4px; }
+    h1, h2, strong{ font:inherit; }
+    .grey{ color:#777; }
+    .page{ max-width:560px; margin:0 auto; padding:48px 0 80px; }
+    .crumbs{ margin-bottom:14vh; }
+    header{ margin-bottom:12vh; }
+    section{ padding:56px 0; }
+    section + section{ border-top:1px solid #f0f0f0; }
+    h2{ margin-bottom:20px; }
+    p + p{ margin-top:1.1em; }
+    ol, ul{ list-style:none; }
+    li + li{ margin-top:.6em; }
+    figure{ margin:36px auto 0; }
+    figure svg{ display:block; margin:0 auto; width:100%; height:auto; overflow:visible; }
+    figcaption{ margin-top:12px; color:#777; }
+    table{ border-collapse:collapse; margin:24px auto 0; }
+    th, td{ padding:3px 10px; font-weight:400; vertical-align:top; }
+    th{ color:#777; }
+    tr + tr td{ border-top:1px solid #f2f2f2; }
+    .wide{ width:min(820px, calc(100vw - 48px)); margin-left:50%; transform:translateX(-50%); }
+    footer{ padding-top:56px; }
+  </style>
 </head>
 <body>
-  <main>
-    <div class="scales">
-      <a class="item" href="./papers/temporal-timber-2026.pdf" target="_blank" rel="noopener">
-        <svg viewBox="-1 -1 102 102" aria-hidden="true"><g class="g"><line x1="10" y1="0" x2="10" y2="100"/><line x1="0" y1="10" x2="100" y2="10"/><line x1="20" y1="0" x2="20" y2="100"/><line x1="0" y1="20" x2="100" y2="20"/><line x1="30" y1="0" x2="30" y2="100"/><line x1="0" y1="30" x2="100" y2="30"/><line x1="40" y1="0" x2="40" y2="100"/><line x1="0" y1="40" x2="100" y2="40"/><line x1="50" y1="0" x2="50" y2="100"/><line x1="0" y1="50" x2="100" y2="50"/><line x1="60" y1="0" x2="60" y2="100"/><line x1="0" y1="60" x2="100" y2="60"/><line x1="70" y1="0" x2="70" y2="100"/><line x1="0" y1="70" x2="100" y2="70"/><line x1="80" y1="0" x2="80" y2="100"/><line x1="0" y1="80" x2="100" y2="80"/><line x1="90" y1="0" x2="90" y2="100"/><line x1="0" y1="90" x2="100" y2="90"/></g><g class="k"><circle cx="10" cy="10" r="1.8"/><circle cx="10" cy="20" r="1.8"/><circle cx="10" cy="40" r="1.8"/><circle cx="10" cy="60" r="1.8"/><circle cx="10" cy="70" r="1.8"/><circle cx="10" cy="90" r="1.8"/><circle cx="20" cy="10" r="1.8"/><circle cx="20" cy="20" r="1.8"/><circle cx="20" cy="30" r="1.8"/><circle cx="20" cy="40" r="1.8"/><circle cx="20" cy="60" r="1.8"/><circle cx="20" cy="70" r="1.8"/><circle cx="30" cy="20" r="1.8"/><circle cx="30" cy="40" r="1.8"/><circle cx="30" cy="60" r="1.8"/><circle cx="30" cy="70" r="1.8"/><circle cx="30" cy="80" r="1.8"/><circle cx="30" cy="90" r="1.8"/><circle cx="40" cy="20" r="1.8"/><circle cx="40" cy="50" r="1.8"/><circle cx="40" cy="70" r="1.8"/><circle cx="40" cy="80" r="1.8"/><circle cx="40" cy="90" r="1.8"/><circle cx="50" cy="20" r="1.8"/><circle cx="50" cy="30" r="1.8"/><circle cx="50" cy="60" r="1.8"/><circle cx="50" cy="90" r="1.8"/><circle cx="60" cy="50" r="1.8"/><circle cx="60" cy="70" r="1.8"/><circle cx="60" cy="80" r="1.8"/><circle cx="70" cy="10" r="1.8"/><circle cx="70" cy="30" r="1.8"/><circle cx="70" cy="80" r="1.8"/><circle cx="80" cy="80" r="1.8"/><circle cx="90" cy="40" r="1.8"/><circle cx="90" cy="50" r="1.8"/><circle cx="90" cy="70" r="1.8"/><circle cx="90" cy="90" r="1.8"/></g><rect class="f" x="0" y="0" width="100" height="100"/></svg>
-        <p>temporal timber:<br>an overview</p>
-        <p class="grey">paper: time-encoded material passports for circular design</p>
-      </a>
-      <a class="item" href="https://ilkyazs7.github.io/temporal-timber-tools/tools/temporal-mismatch/">
-        <svg viewBox="-1 -1 102 102" aria-hidden="true"><g class="g"><line x1="10" y1="0" x2="10" y2="100"/><line x1="0" y1="10" x2="100" y2="10"/><line x1="20" y1="0" x2="20" y2="100"/><line x1="0" y1="20" x2="100" y2="20"/><line x1="30" y1="0" x2="30" y2="100"/><line x1="0" y1="30" x2="100" y2="30"/><line x1="40" y1="0" x2="40" y2="100"/><line x1="0" y1="40" x2="100" y2="40"/><line x1="50" y1="0" x2="50" y2="100"/><line x1="0" y1="50" x2="100" y2="50"/><line x1="60" y1="0" x2="60" y2="100"/><line x1="0" y1="60" x2="100" y2="60"/><line x1="70" y1="0" x2="70" y2="100"/><line x1="0" y1="70" x2="100" y2="70"/><line x1="80" y1="0" x2="80" y2="100"/><line x1="0" y1="80" x2="100" y2="80"/><line x1="90" y1="0" x2="90" y2="100"/><line x1="0" y1="90" x2="100" y2="90"/></g><g class="k"><rect x="20" y="19.2" width="20" height="1.6"/><rect x="60" y="39.2" width="20" height="1.6"/><rect x="19.2" y="60" width="1.6" height="20"/><rect x="40" y="79.2" width="20" height="1.6"/><rect x="79.2" y="60" width="1.6" height="20"/><rect x="18.4" y="18.4" width="3.2" height="3.2"/><rect x="18.4" y="38.4" width="3.2" height="3.2"/><rect x="18.4" y="58.4" width="3.2" height="3.2"/><rect x="18.4" y="78.4" width="3.2" height="3.2"/><rect x="38.4" y="18.4" width="3.2" height="3.2"/><rect x="38.4" y="38.4" width="3.2" height="3.2"/><rect x="38.4" y="58.4" width="3.2" height="3.2"/><rect x="38.4" y="78.4" width="3.2" height="3.2"/><rect x="58.4" y="18.4" width="3.2" height="3.2"/><rect x="58.4" y="38.4" width="3.2" height="3.2"/><rect x="58.4" y="58.4" width="3.2" height="3.2"/><rect x="58.4" y="78.4" width="3.2" height="3.2"/><rect x="78.4" y="18.4" width="3.2" height="3.2"/><rect x="78.4" y="38.4" width="3.2" height="3.2"/><rect x="78.4" y="58.4" width="3.2" height="3.2"/><rect x="78.4" y="78.4" width="3.2" height="3.2"/></g><rect class="f" x="0" y="0" width="100" height="100"/></svg>
-        <p>temporal mismatch</p>
-        <p class="grey">material passports and lifespan-based substitution</p>
-      </a>
-      <a class="item" href="https://ilkyazs7.github.io/temporal-timber-tools/tools/maintenance/">
-        <svg viewBox="-1 -1 102 102" aria-hidden="true"><rect x="0" y="0" width="10.05" height="10.05" fill="rgb(97,97,97)"/><rect x="10" y="0" width="10.05" height="10.05" fill="rgb(97,97,97)"/><rect x="20" y="0" width="10.05" height="10.05" fill="rgb(121,121,121)"/><rect x="30" y="0" width="10.05" height="10.05" fill="rgb(137,137,137)"/><rect x="40" y="0" width="10.05" height="10.05" fill="rgb(153,153,153)"/><rect x="50" y="0" width="10.05" height="10.05" fill="rgb(162,162,162)"/><rect x="60" y="0" width="10.05" height="10.05" fill="rgb(175,175,175)"/><rect x="70" y="0" width="10.05" height="10.05" fill="rgb(188,188,188)"/><rect x="80" y="0" width="10.05" height="10.05" fill="rgb(198,198,198)"/><rect x="90" y="0" width="10.05" height="10.05" fill="rgb(224,224,224)"/><rect x="0" y="10" width="10.05" height="10.05" fill="rgb(106,106,106)"/><rect x="10" y="10" width="10.05" height="10.05" fill="rgb(105,105,105)"/><rect x="20" y="10" width="10.05" height="10.05" fill="rgb(113,113,113)"/><rect x="30" y="10" width="10.05" height="10.05" fill="rgb(129,129,129)"/><rect x="40" y="10" width="10.05" height="10.05" fill="rgb(145,145,145)"/><rect x="50" y="10" width="10.05" height="10.05" fill="rgb(169,169,169)"/><rect x="60" y="10" width="10.05" height="10.05" fill="rgb(177,177,177)"/><rect x="70" y="10" width="10.05" height="10.05" fill="rgb(182,182,182)"/><rect x="80" y="10" width="10.05" height="10.05" fill="rgb(198,198,198)"/><rect x="90" y="10" width="10.05" height="10.05" fill="rgb(229,229,229)"/><rect x="0" y="20" width="10.05" height="10.05" fill="rgb(104,104,104)"/><rect x="10" y="20" width="10.05" height="10.05" fill="rgb(108,108,108)"/><rect x="20" y="20" width="10.05" height="10.05" fill="rgb(113,113,113)"/><rect x="30" y="20" width="10.05" height="10.05" fill="rgb(137,137,137)"/><rect x="40" y="20" width="10.05" height="10.05" fill="rgb(145,145,145)"/><rect x="50" y="20" width="10.05" height="10.05" fill="rgb(161,161,161)"/><rect x="60" y="20" width="10.05" height="10.05" fill="rgb(169,169,169)"/><rect x="70" y="20" width="10.05" height="10.05" fill="rgb(177,177,177)"/><rect x="80" y="20" width="10.05" height="10.05" fill="rgb(186,186,186)"/><rect x="90" y="20" width="10.05" height="10.05" fill="rgb(230,230,230)"/><rect x="0" y="30" width="10.05" height="10.05" fill="rgb(113,113,113)"/><rect x="10" y="30" width="10.05" height="10.05" fill="rgb(100,100,100)"/><rect x="20" y="30" width="10.05" height="10.05" fill="rgb(105,105,105)"/><rect x="30" y="30" width="10.05" height="10.05" fill="rgb(128,128,128)"/><rect x="40" y="30" width="10.05" height="10.05" fill="rgb(144,144,144)"/><rect x="50" y="30" width="10.05" height="10.05" fill="rgb(153,153,153)"/><rect x="60" y="30" width="10.05" height="10.05" fill="rgb(163,163,163)"/><rect x="70" y="30" width="10.05" height="10.05" fill="rgb(177,177,177)"/><rect x="80" y="30" width="10.05" height="10.05" fill="rgb(186,186,186)"/><rect x="90" y="30" width="10.05" height="10.05" fill="rgb(224,224,224)"/><rect x="0" y="40" width="10.05" height="10.05" fill="rgb(121,121,121)"/><rect x="10" y="40" width="10.05" height="10.05" fill="rgb(96,96,96)"/><rect x="20" y="40" width="10.05" height="10.05" fill="rgb(97,97,97)"/><rect x="30" y="40" width="10.05" height="10.05" fill="rgb(127,127,127)"/><rect x="40" y="40" width="10.05" height="10.05" fill="rgb(134,134,134)"/><rect x="50" y="40" width="10.05" height="10.05" fill="rgb(144,144,144)"/><rect x="60" y="40" width="10.05" height="10.05" fill="rgb(151,151,151)"/><rect x="70" y="40" width="10.05" height="10.05" fill="rgb(180,180,180)"/><rect x="80" y="40" width="10.05" height="10.05" fill="rgb(189,189,189)"/><rect x="90" y="40" width="10.05" height="10.05" fill="rgb(224,224,224)"/><rect x="0" y="50" width="10.05" height="10.05" fill="rgb(113,113,113)"/><rect x="10" y="50" width="10.05" height="10.05" fill="rgb(87,87,87)"/><rect x="20" y="50" width="10.05" height="10.05" fill="rgb(100,100,100)"/><rect x="30" y="50" width="10.05" height="10.05" fill="rgb(116,116,116)"/><rect x="40" y="50" width="10.05" height="10.05" fill="rgb(123,123,123)"/><rect x="50" y="50" width="10.05" height="10.05" fill="rgb(144,144,144)"/><rect x="60" y="50" width="10.05" height="10.05" fill="rgb(155,155,155)"/><rect x="70" y="50" width="10.05" height="10.05" fill="rgb(172,172,172)"/><rect x="80" y="50" width="10.05" height="10.05" fill="rgb(181,181,181)"/><rect x="90" y="50" width="10.05" height="10.05" fill="rgb(208,208,208)"/><rect x="0" y="60" width="10.05" height="10.05" fill="rgb(99,99,99)"/><rect x="10" y="60" width="10.05" height="10.05" fill="rgb(79,79,79)"/><rect x="20" y="60" width="10.05" height="10.05" fill="rgb(94,94,94)"/><rect x="30" y="60" width="10.05" height="10.05" fill="rgb(102,102,102)"/><rect x="40" y="60" width="10.05" height="10.05" fill="rgb(114,114,114)"/><rect x="50" y="60" width="10.05" height="10.05" fill="rgb(135,135,135)"/><rect x="60" y="60" width="10.05" height="10.05" fill="rgb(149,149,149)"/><rect x="70" y="60" width="10.05" height="10.05" fill="rgb(159,159,159)"/><rect x="80" y="60" width="10.05" height="10.05" fill="rgb(171,171,171)"/><rect x="90" y="60" width="10.05" height="10.05" fill="rgb(208,208,208)"/><rect x="0" y="70" width="10.05" height="10.05" fill="rgb(98,98,98)"/><rect x="10" y="70" width="10.05" height="10.05" fill="rgb(66,66,66)"/><rect x="20" y="70" width="10.05" height="10.05" fill="rgb(73,73,73)"/><rect x="30" y="70" width="10.05" height="10.05" fill="rgb(89,89,89)"/><rect x="40" y="70" width="10.05" height="10.05" fill="rgb(101,101,101)"/><rect x="50" y="70" width="10.05" height="10.05" fill="rgb(120,120,120)"/><rect x="60" y="70" width="10.05" height="10.05" fill="rgb(128,128,128)"/><rect x="70" y="70" width="10.05" height="10.05" fill="rgb(151,151,151)"/><rect x="80" y="70" width="10.05" height="10.05" fill="rgb(161,161,161)"/><rect x="90" y="70" width="10.05" height="10.05" fill="rgb(191,191,191)"/><rect x="0" y="80" width="10.05" height="10.05" fill="rgb(96,96,96)"/><rect x="10" y="80" width="10.05" height="10.05" fill="rgb(63,63,63)"/><rect x="20" y="80" width="10.05" height="10.05" fill="rgb(71,71,71)"/><rect x="30" y="80" width="10.05" height="10.05" fill="rgb(87,87,87)"/><rect x="40" y="80" width="10.05" height="10.05" fill="rgb(99,99,99)"/><rect x="50" y="80" width="10.05" height="10.05" fill="rgb(113,113,113)"/><rect x="60" y="80" width="10.05" height="10.05" fill="rgb(118,118,118)"/><rect x="70" y="80" width="10.05" height="10.05" fill="rgb(134,134,134)"/><rect x="80" y="80" width="10.05" height="10.05" fill="rgb(147,147,147)"/><rect x="90" y="80" width="10.05" height="10.05" fill="rgb(183,183,183)"/><rect x="0" y="90" width="10.05" height="10.05" fill="rgb(70,70,70)"/><rect x="10" y="90" width="10.05" height="10.05" fill="rgb(60,60,60)"/><rect x="20" y="90" width="10.05" height="10.05" fill="rgb(71,71,71)"/><rect x="30" y="90" width="10.05" height="10.05" fill="rgb(79,79,79)"/><rect x="40" y="90" width="10.05" height="10.05" fill="rgb(92,92,92)"/><rect x="50" y="90" width="10.05" height="10.05" fill="rgb(101,101,101)"/><rect x="60" y="90" width="10.05" height="10.05" fill="rgb(117,117,117)"/><rect x="70" y="90" width="10.05" height="10.05" fill="rgb(133,133,133)"/><rect x="80" y="90" width="10.05" height="10.05" fill="rgb(151,151,151)"/><rect x="90" y="90" width="10.05" height="10.05" fill="rgb(190,190,190)"/><rect class="f" x="0" y="0" width="100" height="100"/></svg>
-        <p>maintenance</p>
-        <p class="grey">weathering simulation with timestamped care events</p>
-      </a>
-    </div>
+  <main class="page">
+
+    <nav class="crumbs"><a href="../">temporal timber</a> <span class="grey">/ overview</span></nav>
+
+    <header>
+      <h1>temporal timber: an overview</h1>
+      <p class="grey">time-encoded material passports for circular design</p>
+    </header>
+
+    <!-- the problem -->
+    <section>
+      <h2><span class="grey">01</span> the problem</h2>
+      <p>architectural design is still largely material-agnostic. it assumes a steady supply of new resources, and treats materials as fixed specifications rather than as stock that ages.</p>
+      <p>buildings and their parts run on different clocks. structure, envelope and services age at different rates, and buildings are often taken down for functional, economic or regulatory reasons long before their materials fail. usable components are lost with them.</p>
+      <p>circular construction tools track, classify and reuse materials, but mostly as static records. they rarely account for degradation, exposure or remaining service life.</p>
+    </section>
+
+    <!-- the approach -->
+    <section>
+      <h2><span class="grey">02</span> the approach</h2>
+      <p>temporal timber embeds time as an operative design parameter. using cross-laminated timber (clt) as a case study, each element carries a material passport whose lifespan is not a fixed number but a condition: the result of its position, exposure, moisture and material properties.</p>
+      <p>the framework works at two scales: the element, described by its passport, and the building, where elements are reallocated through a rule-based substitution model.</p>
+
+      <figure>
+        <svg viewBox="0 0 520 150" role="img" aria-label="two scales: element passport and building assembly">
+          <g font-family="IBM Plex Mono, monospace" font-size="11" fill="#777" text-anchor="middle">
+            <!-- element -->
+            <rect x="60" y="20" width="120" height="90" fill="none" stroke="#000"/>
+            <g fill="#000" text-anchor="start">
+              <text x="72" y="42">wall_08</text>
+            </g>
+            <text x="120" y="62" text-anchor="middle">v1 · spruce</text>
+            <text x="120" y="78">installed 2022</text>
+            <text x="120" y="94">55.4 yr</text>
+            <text x="120" y="135">element · passport</text>
+            <!-- arrow -->
+            <line x1="200" y1="65" x2="310" y2="65" stroke="#000"/>
+            <path d="M304 60 L311 65 L304 70" fill="none" stroke="#000"/>
+            <text x="255" y="55">substitution</text>
+            <!-- building -->
+            <g stroke="#e0e0e0">
+              <line x1="340" y1="20" x2="340" y2="110"/><line x1="370" y1="20" x2="370" y2="110"/><line x1="400" y1="20" x2="400" y2="110"/><line x1="430" y1="20" x2="430" y2="110"/><line x1="460" y1="20" x2="460" y2="110"/>
+              <line x1="330" y1="35" x2="470" y2="35"/><line x1="330" y1="65" x2="470" y2="65"/><line x1="330" y1="95" x2="470" y2="95"/>
+            </g>
+            <g fill="#000">
+              <rect x="337" y="32" width="6" height="6"/><rect x="367" y="32" width="6" height="6"/><rect x="397" y="32" width="6" height="6"/><rect x="427" y="32" width="6" height="6"/><rect x="457" y="32" width="6" height="6"/>
+              <rect x="337" y="92" width="6" height="6"/><rect x="367" y="92" width="6" height="6"/><rect x="397" y="92" width="6" height="6"/><rect x="427" y="92" width="6" height="6"/><rect x="457" y="92" width="6" height="6"/>
+              <rect x="340" y="34" width="30" height="2"/><rect x="400" y="64" width="30" height="2"/><rect x="339" y="65" width="2" height="30"/><rect x="459" y="35" width="2" height="30"/>
+            </g>
+            <rect x="397" y="62" width="6" height="6" fill="#fff" stroke="#000"/>
+            <text x="400" y="135">building · assembly</text>
+          </g>
+        </svg>
+        <figcaption>the passport describes the element · the substitution model aligns elements with the building</figcaption>
+      </figure>
+    </section>
+
+    <!-- the passport -->
+    <section>
+      <h2><span class="grey">03</span> the material passport</h2>
+      <p>each passport joins geometric data from the model with material attributes:</p>
+      <ul class="grey" style="margin:20px 0">
+        <li>identity · element id, zone id</li>
+        <li>position · zone, system, place in the building, distance to centre</li>
+        <li>geometry · dimensions, thickness, vertices</li>
+        <li>material · species, grade, installation year</li>
+        <li>risk · design risk conditions</li>
+      </ul>
+      <p>a rule-based classification organises elements across global (zones, floors), element (wall, floor, façade) and local (relative position) scales. moisture is the primary variable: it drives dimensional change, decay and long-term structural performance, so lifespan decreases with exposure and distance from the driest point of the plan.</p>
+    </section>
+
+    <!-- substitution -->
+    <section>
+      <h2><span class="grey">04</span> substitution</h2>
+      <p>design intent and function are preserved: a wall stays a wall. replacements must maintain or improve the required performance: bending stiffness for floors and roofs, compressive strength for walls, density and durability at wall bases and high-risk zones. upgrades are allowed; downgrades are restricted.</p>
+      <div class="wide">
+        <table aria-label="substitution matrix">
+          <tr><th>original</th><th>application</th><th>acceptable substitutes</th></tr>
+          <tr><td>e1 · spf</td><td>floor / roof</td><td>e1, e2</td></tr>
+          <tr><td>e1 · spf</td><td>wall</td><td>e1, e2, e4</td></tr>
+          <tr><td>e2 · df-l</td><td>floor / roof</td><td>e2</td></tr>
+          <tr><td>e2 · df-l</td><td>wall</td><td>e2, e4</td></tr>
+          <tr><td>e3 · northern</td><td>floor / roof</td><td>e3, e1, e2</td></tr>
+          <tr><td>e3 · northern</td><td>wall</td><td>e3, e1, e2, e4</td></tr>
+          <tr><td>e4 · southern pine</td><td>wall base</td><td>e4 only</td></tr>
+          <tr><td>e4 · southern pine</td><td>floor</td><td>e4, e2, e1</td></tr>
+          <tr><td>e5 · hem-fir</td><td>any</td><td>e5, e1, e3</td></tr>
+          <tr><td>v1 · df-l</td><td>wall</td><td>v1, v2, e1, e2</td></tr>
+          <tr><td>v2 · spf</td><td>wall</td><td>v2, v1, e grades</td></tr>
+          <tr><td>v3 · southern pine</td><td>wall base</td><td>v3, e4</td></tr>
+        </table>
+      </div>
+      <p style="margin-top:28px">a paradox runs through engineered timber: wood can last over a century, but a clt panel's guaranteed life is bounded by its adhesive bonds. substitution has to account for both.</p>
+    </section>
+
+    <!-- lifespan gaps -->
+    <section>
+      <h2><span class="grey">05</span> three lifespan gaps</h2>
+      <p>the model compares building lifespan (bl) with material lifespan (ml):</p>
+      <figure class="wide" style="max-width:640px">
+        <svg viewBox="0 0 600 170" role="img" aria-label="three lifespan gap scenarios">
+          <g font-family="IBM Plex Mono, monospace" font-size="11" fill="#777">
+            <!-- 1 -->
+            <text x="0" y="24" fill="#000">bl &gt; ml</text>
+            <line x1="110" y1="16" x2="560" y2="16" stroke="#000" stroke-width="2"/>
+            <line x1="110" y1="28" x2="370" y2="28" stroke="#000" stroke-dasharray="3 4"/>
+            <text x="376" y="32">materials run out first · replacement</text>
+            <!-- 2 -->
+            <text x="0" y="84" fill="#000">bl &lt; ml</text>
+            <line x1="110" y1="76" x2="370" y2="76" stroke="#000" stroke-width="2"/>
+            <line x1="110" y1="88" x2="560" y2="88" stroke="#000" stroke-dasharray="3 4"/>
+            <text x="376" y="72">building ends first · wasted capacity</text>
+            <!-- 3 -->
+            <text x="0" y="144" fill="#000">bl ≈ ml</text>
+            <line x1="110" y1="136" x2="540" y2="136" stroke="#000" stroke-width="2"/>
+            <line x1="110" y1="148" x2="552" y2="148" stroke="#000" stroke-dasharray="3 4"/>
+            <text x="110" y="168">aligned · the aim</text>
+          </g>
+        </svg>
+        <figcaption>solid · building lifespan &nbsp; dashed · material lifespan</figcaption>
+      </figure>
+      <p style="margin-top:28px">each can be read with or without design risk conditions (moisture, position, environmental risk), moving from idealised alignment toward context-dependent performance.</p>
+    </section>
+
+    <!-- demonstration -->
+    <section>
+      <h2><span class="grey">06</span> demonstration</h2>
+      <p>a single-storey clt building of 28 wall elements is followed over 60 years. lifespan decays with each element's position and moisture exposure. around year 40, a subset of walls falls below the building's target life: the bl &gt; ml case.</p>
+      <p>those elements are replaced from an inventory of new, reclaimed and reconditioned panels, within the rules of the substitution matrix. the building's layout stays the same; the distribution of lifespans within it is recalibrated. elements stay in use within their viable range, and less new material is needed.</p>
+      <p style="margin-top:28px"><a href="https://ilkyazs7.github.io/temporal-timber-tools/tools/temporal-mismatch/">try it in temporal mismatch →</a></p>
+    </section>
+
+    <!-- contributions -->
+    <section>
+      <h2><span class="grey">07</span> contributions</h2>
+      <ol>
+        <li><span class="grey">01</span> a method for encoding time-dependent attributes in material passports</li>
+        <li><span class="grey">02</span> a substitution framework that aligns material and building lifespans</li>
+        <li><span class="grey">03</span> an interface for inventory-based allocation of temporally differentiated elements</li>
+        <li><span class="grey">04</span> a demonstration of reducing temporal mismatch through targeted substitution</li>
+      </ol>
+    </section>
+
+    <!-- next -->
+    <section>
+      <h2><span class="grey">08</span> what comes next</h2>
+      <p>optimisation for automated allocation, performance criteria beyond moisture and lifespan, and the upstream timeline of the material itself: from forest conditions to wood anatomy, lumber properties and clt performance.</p>
+      <p>beyond design, time-dependent material data could inform insurance, warranties, salvage and reuse, and construction finance, where decisions still rest on assumed lifespans. the architect's role may extend into long-term material stewardship.</p>
+      <p style="margin-top:28px"><a href="https://ilkyazs7.github.io/temporal-timber-tools/tools/maintenance/">continue in maintenance →</a></p>
+    </section>
+
+    <footer>
+      <p class="grey">the full paper is in review · available on request</p>
+      <p style="margin-top:16px"><a class="grey" href="../">← temporal timber</a></p>
+    </footer>
   </main>
-
-  <section class="manifesto" id="manifesto" aria-label="manifesto">
-    <p>nothing is finished</p>
-    <p class="grey">manifesto</p>
-
-    <div class="text">
-      <p>the dream of a responsive, information-rich architecture is old. sutherland gave digital objects their own properties [1]; the eameses treated information itself as something to be designed [2]; alexander argued design should begin by structuring information, not form [3]; lewitt showed that a rule set can be the work, its outcomes left to unfold [4]; pask, price, and negroponte imagined buildings and machines that learn from the people who use them [5]. less explored is what happens when a material carries a record of how it has aged and been cared for, and that record informs how we design with it.</p>
-      <p>there are no fixed entities. a material is not a static specification but a process; it weathers, degrades, and is repaired, its future emerging, as ingold [6] and barad [7] remind us, through ongoing intra-action between matter, environment, and the people who tend it. yet we still design as if materials were inert and buildings finished.</p>
-      <p>time is a material. to design with it is to trade static specification for temporal alignment: to track a material's lifespan and condition, and let that record inform every decision that follows. we call for interactive information tools, material passports that align with maintenance records, and temporal models embedded in bim that turn the biography of matter into foresight. not to predict the future, but to give designers and decision-makers the knowledge to navigate an uncertain one: to know what a material is, how it has been cared for, and what it might yet become.</p>
-      <p>nothing is finished.</p>
-    </div>
-
-    <ol class="refs grey">
-      <li>[1] sutherland, i. e. 1963. sketchpad: a man-machine graphical communication system.</li>
-      <li>[2] eames, c. and r. 1953. a communications primer.</li>
-      <li>[3] alexander, c. 1964. notes on the synthesis of form.</li>
-      <li>[4] lewitt, s. 1967. paragraphs on conceptual art.</li>
-      <li>[5] pask, g. 1969. the architectural relevance of cybernetics; price, c. fun palace; negroponte, n. 1970. the architecture machine.</li>
-      <li>[6] ingold, t. 2007. materials against materiality.</li>
-      <li>[7] barad, k. 2007. meeting the universe halfway.</li>
-    </ol>
-  </section>
-
-  <footer>
-    <a class="grey" href="https://github.com/ilkyazs7/temporal-timber-tools">source</a>
-  </footer>
 </body>
 </html>
