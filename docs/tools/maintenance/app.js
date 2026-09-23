@@ -1289,7 +1289,7 @@ function buildResultGrid() {
 function sizeResultFigure() {
   const canvas = els.resultFigure;
   if (!canvas) return;
-  const size = Math.round(Math.min(520, canvas.parentElement?.clientWidth || 520));
+  const size = Math.round(Math.min(420, canvas.parentElement?.clientWidth || 420));
   canvas.style.width = `${size}px`;
   canvas.style.height = `${size}px`;
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -1344,16 +1344,11 @@ function renderSimulationDay(day) {
 }
 
 // the predicted surface, drawn like the matrices of the possibility tree:
-// edge-to-edge colour cells, one thin frame. over each pixel, its own
-// accumulated uv (white, upper band) and moisture (black, lower band) are
-// traced up to the current day.
-// covered cells carry a small black corner mark.
-let SHOW_CURVES = true;
-
+// edge-to-edge colour cells, covered cells outlined, one thin frame
 function drawTemporalTimberFigure(currentDay) {
   const canvas = els.resultFigure;
   if (!canvas) return;
-  const size = Number(canvas.dataset.cssWidth || 480);
+  const size = Number(canvas.dataset.cssWidth || 420);
   const dpr = canvas.width / size;
   const ctx = canvas.getContext("2d");
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -1362,7 +1357,6 @@ function drawTemporalTimberFigure(currentDay) {
   const cell = size / GRID_SIZE;
   const rgb = state.rgbStates[currentDay];
   const coverage = state.coverageStates[currentDay];
-  const days = state.dailyEnvironment.length;
 
   for (let i = 0; i < CELL_COUNT; i += 1) {
     const x = (i % GRID_SIZE) * cell;
@@ -1372,59 +1366,16 @@ function drawTemporalTimberFigure(currentDay) {
     ctx.fillRect(Math.floor(x), Math.floor(y), Math.ceil(cell) + 1, Math.ceil(cell) + 1);
   }
 
-  if (SHOW_CURVES && currentDay > 0) {
-    // one shared scale for every pixel so they can be compared
-    const uvMax = Math.max(1, ...state.effectiveUv[days]);
-    const moistureMax = Math.max(1, ...state.effectiveMoisture[days]);
-    const pad = cell * 0.14;
-    const w = cell - pad * 2, h = cell - pad * 2;
-    const step = Math.max(1, Math.floor(days / 90));
-
-    // uv traced in the upper band of each pixel, moisture in the lower band
-    const band = (h - pad * 0.5) / 2;
-    const trace = (series, max, colour, bandIndex) => {
-      ctx.strokeStyle = colour;
-      ctx.lineWidth = 1.1;
-      for (let i = 0; i < CELL_COUNT; i += 1) {
-        const x0 = (i % GRID_SIZE) * cell + pad;
-        const y0 = Math.floor(i / GRID_SIZE) * cell + pad + band + bandIndex * (band + pad * 0.5);
-        const at = (d) => [x0 + (d / days) * w, y0 - (series[d][i] / max) * band];
-        ctx.beginPath();
-        ctx.moveTo(...at(0));
-        for (let d = step; d < currentDay; d += step) ctx.lineTo(...at(d));
-        ctx.lineTo(...at(currentDay));
-        ctx.stroke();
-      }
-    };
-    trace(state.effectiveUv, uvMax, "rgba(255,255,255,.95)", 0);
-    trace(state.effectiveMoisture, moistureMax, "rgba(0,0,0,.85)", 1);
-  }
-
-  // covered cells: a small corner mark
-  ctx.fillStyle = "#000";
-  const m = Math.max(5, cell * 0.16);
+  ctx.strokeStyle = "#000";
+  ctx.lineWidth = 1;
   for (let i = 0; i < CELL_COUNT; i += 1) {
     if (!coverage[i]) continue;
     const x = (i % GRID_SIZE) * cell;
     const y = Math.floor(i / GRID_SIZE) * cell;
-    ctx.beginPath();
-    ctx.moveTo(x + cell - m, y);
-    ctx.lineTo(x + cell, y);
-    ctx.lineTo(x + cell, y + m);
-    ctx.closePath();
-    ctx.fill();
+    ctx.strokeRect(x + 2.5, y + 2.5, cell - 5, cell - 5);
   }
 
-  ctx.strokeStyle = "#000";
-  ctx.lineWidth = 1;
   ctx.strokeRect(0.5, 0.5, size - 1, size - 1);
-}
-
-function toggleCurves() {
-  SHOW_CURVES = !SHOW_CURVES;
-  const b = document.getElementById("curvesToggle");
-  if (b) b.textContent = SHOW_CURVES ? "hide curves" : "show curves";
-  if (state.rgbStates.length) renderSimulationDay(Number(els.daySlider.value));
 }
 
 function mean(values) {

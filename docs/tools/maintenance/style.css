@@ -234,13 +234,3 @@ footer{ padding-top:40px; }
   .calibration-grid{ gap:28px; }
   .crumbs{ margin-bottom:10vh; }
 }
-
-/* prediction legend: line keys sit on a timber-coloured chip so the white uv line reads */
-.legend{ display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:8px 22px; color:var(--grey); }
-.legend span{ display:inline-flex; align-items:center; gap:8px; }
-.key{ display:inline-block; width:22px; height:12px; background:#a0622f; position:relative; }
-.key-uv::after, .key-moist::after{ content:""; position:absolute; left:3px; right:3px; top:5px; height:1.5px; }
-.key-uv::after{ background:#fff; }
-.key-moist::after{ background:#000; }
-.key-cover{ background:#a0622f; clip-path:none; }
-.key-cover::after{ content:""; position:absolute; right:0; top:0; border-top:6px solid #000; border-left:6px solid transparent; }

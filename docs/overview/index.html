@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>temporal timber: an overview</title>
+  <meta name="description" content="time-encoded material passports for circular design: the research behind the temporal timber tools.">
+  <link rel="stylesheet" href="../assets/fonts.css">
+  <style>
+    *{ box-sizing:border-box; margin:0; padding:0; }
+    html, body{ background:#fff; color:#000; }
+    body{
+      font-family:"IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+      font-size:13px; line-height:1.7; text-align:center; text-transform:lowercase;
+      -webkit-font-smoothing:antialiased; padding:0 24px;
+    }
+    a{ color:inherit; text-decoration:none; }
+    a:hover{ text-decoration:underline; text-underline-offset:4px; }
+    h1, h2, strong{ font:inherit; }
+    .grey{ color:#777; }
+    .page{ max-width:560px; margin:0 auto; padding:48px 0 80px; }
+    .crumbs{ margin-bottom:14vh; }
+    header{ margin-bottom:12vh; }
+    section{ padding:56px 0; }
+    section + section{ border-top:1px solid #f0f0f0; }
+    h2{ margin-bottom:20px; }
+    p + p{ margin-top:1.1em; }
+    ol, ul{ list-style:none; }
+    li + li{ margin-top:.6em; }
+    figure{ margin:36px auto 0; }
+    figure svg{ display:block; margin:0 auto; width:100%; height:auto; overflow:visible; }
+    figcaption{ margin-top:12px; color:#777; }
+    table{ border-collapse:collapse; margin:24px auto 0; }
+    th, td{ padding:3px 10px; font-weight:400; vertical-align:top; }
+    th{ color:#777; }
+    tr + tr td{ border-top:1px solid #f2f2f2; }
+    .wide{ width:min(820px, calc(100vw - 48px)); margin-left:50%; transform:translateX(-50%); }
+    footer{ padding-top:56px; }
+  </style>
+</head>
+<body>
+  <main class="page">
+
+    <nav class="crumbs"><a href="../">temporal timber</a> <span class="grey">/ overview</span></nav>
+
+    <header>
+      <h1>temporal timber: an overview</h1>
+      <p class="grey">time-encoded material passports for circular design</p>
+    </header>
+
+    <!-- the problem -->
+    <section>
+      <h2><span class="grey">01</span> the problem</h2>
+      <p>architectural design is still largely material-agnostic. it assumes a steady supply of new resources, and treats materials as fixed specifications rather than as stock that ages.</p>
+      <p>buildings and their parts run on different clocks. structure, envelope and services age at different rates, and buildings are often taken down for functional, economic or regulatory reasons long before their materials fail. usable components are lost with them.</p>
+      <p>circular construction tools track, classify and reuse materials, but mostly as static records. they rarely account for degradation, exposure or remaining service life.</p>
+    </section>
+
+    <!-- the approach -->
+    <section>
+      <h2><span class="grey">02</span> the approach</h2>
+      <p>temporal timber embeds time as an operative design parameter. using cross-laminated timber (clt) as a case study, each element carries a material passport whose lifespan is not a fixed number but a condition: the result of its position, exposure, moisture and material properties.</p>
+      <p>the framework works at two scales: the element, described by its passport, and the building, where elements are reallocated through a rule-based substitution model.</p>
+
+      <figure>
+        <svg viewBox="0 0 520 150" role="img" aria-label="two scales: element passport and building assembly">
+          <g font-family="IBM Plex Mono, monospace" font-size="11" fill="#777" text-anchor="middle">
+            <!-- element -->
+            <rect x="60" y="20" width="120" height="90" fill="none" stroke="#000"/>
+            <g fill="#000" text-anchor="start">
+              <text x="72" y="42">wall_08</text>
+            </g>
+            <text x="120" y="62" text-anchor="middle">v1 · spruce</text>
+            <text x="120" y="78">installed 2022</text>
+            <text x="120" y="94">55.4 yr</text>
+            <text x="120" y="135">element · passport</text>
+            <!-- arrow -->
+            <line x1="200" y1="65" x2="310" y2="65" stroke="#000"/>
+            <path d="M304 60 L311 65 L304 70" fill="none" stroke="#000"/>
+            <text x="255" y="55">substitution</text>
+            <!-- building -->
+            <g stroke="#e0e0e0">
+              <line x1="340" y1="20" x2="340" y2="110"/><line x1="370" y1="20" x2="370" y2="110"/><line x1="400" y1="20" x2="400" y2="110"/><line x1="430" y1="20" x2="430" y2="110"/><line x1="460" y1="20" x2="460" y2="110"/>
+              <line x1="330" y1="35" x2="470" y2="35"/><line x1="330" y1="65" x2="470" y2="65"/><line x1="330" y1="95" x2="470" y2="95"/>
+            </g>
+            <g fill="#000">
+              <rect x="337" y="32" width="6" height="6"/><rect x="367" y="32" width="6" height="6"/><rect x="397" y="32" width="6" height="6"/><rect x="427" y="32" width="6" height="6"/><rect x="457" y="32" width="6" height="6"/>
+              <rect x="337" y="92" width="6" height="6"/><rect x="367" y="92" width="6" height="6"/><rect x="397" y="92" width="6" height="6"/><rect x="427" y="92" width="6" height="6"/><rect x="457" y="92" width="6" height="6"/>
+              <rect x="340" y="34" width="30" height="2"/><rect x="400" y="64" width="30" height="2"/><rect x="339" y="65" width="2" height="30"/><rect x="459" y="35" width="2" height="30"/>
+            </g>
+            <rect x="397" y="62" width="6" height="6" fill="#fff" stroke="#000"/>
+            <text x="400" y="135">building · assembly</text>
+          </g>
+        </svg>
+        <figcaption>the passport describes the element · the substitution model aligns elements with the building</figcaption>
+      </figure>
+    </section>
+
+    <!-- the passport -->
+    <section>
+      <h2><span class="grey">03</span> the material passport</h2>
+      <p>each passport joins geometric data from the model with material attributes:</p>
+      <ul class="grey" style="margin:20px 0">
+        <li>identity · element id, zone id</li>
+        <li>position · zone, system, place in the building, distance to centre</li>
+        <li>geometry · dimensions, thickness, vertices</li>
+        <li>material · species, grade, installation year</li>
+        <li>risk · design risk conditions</li>
+      </ul>
+      <p>a rule-based classification organises elements across global (zones, floors), element (wall, floor, façade) and local (relative position) scales. moisture is the primary variable: it drives dimensional change, decay and long-term structural performance, so lifespan decreases with exposure and distance from the driest point of the plan.</p>
+    </section>
+
+    <!-- substitution -->
+    <section>
+      <h2><span class="grey">04</span> substitution</h2>
+      <p>design intent and function are preserved: a wall stays a wall. replacements must maintain or improve the required performance: bending stiffness for floors and roofs, compressive strength for walls, density and durability at wall bases and high-risk zones. upgrades are allowed; downgrades are restricted.</p>
+      <div class="wide">
+        <table aria-label="substitution matrix">
+          <tr><th>original</th><th>application</th><th>acceptable substitutes</th></tr>
+          <tr><td>e1 · spf</td><td>floor / roof</td><td>e1, e2</td></tr>
+          <tr><td>e1 · spf</td><td>wall</td><td>e1, e2, e4</td></tr>
+          <tr><td>e2 · df-l</td><td>floor / roof</td><td>e2</td></tr>
+          <tr><td>e2 · df-l</td><td>wall</td><td>e2, e4</td></tr>
+          <tr><td>e3 · northern</td><td>floor / roof</td><td>e3, e1, e2</td></tr>
+          <tr><td>e3 · northern</td><td>wall</td><td>e3, e1, e2, e4</td></tr>
+          <tr><td>e4 · southern pine</td><td>wall base</td><td>e4 only</td></tr>
+          <tr><td>e4 · southern pine</td><td>floor</td><td>e4, e2, e1</td></tr>
+          <tr><td>e5 · hem-fir</td><td>any</td><td>e5, e1, e3</td></tr>
+          <tr><td>v1 · df-l</td><td>wall</td><td>v1, v2, e1, e2</td></tr>
+          <tr><td>v2 · spf</td><td>wall</td><td>v2, v1, e grades</td></tr>
+          <tr><td>v3 · southern pine</td><td>wall base</td><td>v3, e4</td></tr>
+        </table>
+      </div>
+      <p style="margin-top:28px">a paradox runs through engineered timber: wood can last over a century, but a clt panel's guaranteed life is bounded by its adhesive bonds. substitution has to account for both.</p>
+    </section>
+
+    <!-- lifespan gaps -->
+    <section>
+      <h2><span class="grey">05</span> three lifespan gaps</h2>
+      <p>the model compares building lifespan (bl) with material lifespan (ml):</p>
+      <figure class="wide" style="max-width:640px">
+        <svg viewBox="0 0 600 170" role="img" aria-label="three lifespan gap scenarios">
+          <g font-family="IBM Plex Mono, monospace" font-size="11" fill="#777">
+            <!-- 1 -->
+            <text x="0" y="24" fill="#000">bl &gt; ml</text>
+            <line x1="110" y1="16" x2="560" y2="16" stroke="#000" stroke-width="2"/>
+            <line x1="110" y1="28" x2="370" y2="28" stroke="#000" stroke-dasharray="3 4"/>
+            <text x="376" y="32">materials run out first · replacement</text>
+            <!-- 2 -->
+            <text x="0" y="84" fill="#000">bl &lt; ml</text>
+            <line x1="110" y1="76" x2="370" y2="76" stroke="#000" stroke-width="2"/>
+            <line x1="110" y1="88" x2="560" y2="88" stroke="#000" stroke-dasharray="3 4"/>
+            <text x="376" y="72">building ends first · wasted capacity</text>
+            <!-- 3 -->
+            <text x="0" y="144" fill="#000">bl ≈ ml</text>
+            <line x1="110" y1="136" x2="540" y2="136" stroke="#000" stroke-width="2"/>
+            <line x1="110" y1="148" x2="552" y2="148" stroke="#000" stroke-dasharray="3 4"/>
+            <text x="110" y="168">aligned · the aim</text>
+          </g>
+        </svg>
+        <figcaption>solid · building lifespan &nbsp; dashed · material lifespan</figcaption>
+      </figure>
+      <p style="margin-top:28px">each can be read with or without design risk conditions (moisture, position, environmental risk), moving from idealised alignment toward context-dependent performance.</p>
+    </section>
+
+    <!-- demonstration -->
+    <section>
+      <h2><span class="grey">06</span> demonstration</h2>
+      <p>a single-storey clt building of 28 wall elements is followed over 60 years. lifespan decays with each element's position and moisture exposure. around year 40, a subset of walls falls below the building's target life: the bl &gt; ml case.</p>
+      <p>those elements are replaced from an inventory of new, reclaimed and reconditioned panels, within the rules of the substitution matrix. the building's layout stays the same; the distribution of lifespans within it is recalibrated. elements stay in use within their viable range, and less new material is needed.</p>
+      <p style="margin-top:28px"><a href="https://ilkyazs7.github.io/temporal-timber-tools/tools/temporal-mismatch/">try it in temporal mismatch →</a></p>
+    </section>
+
+    <!-- contributions -->
+    <section>
+      <h2><span class="grey">07</span> contributions</h2>
+      <ol>
+        <li><span class="grey">01</span> a method for encoding time-dependent attributes in material passports</li>
+        <li><span class="grey">02</span> a substitution framework that aligns material and building lifespans</li>
+        <li><span class="grey">03</span> an interface for inventory-based allocation of temporally differentiated elements</li>
+        <li><span class="grey">04</span> a demonstration of reducing temporal mismatch through targeted substitution</li>
+      </ol>
+    </section>
+
+    <!-- next -->
+    <section>
+      <h2><span class="grey">08</span> what comes next</h2>
+      <p>optimisation for automated allocation, performance criteria beyond moisture and lifespan, and the upstream timeline of the material itself: from forest conditions to wood anatomy, lumber properties and clt performance.</p>
+      <p>beyond design, time-dependent material data could inform insurance, warranties, salvage and reuse, and construction finance, where decisions still rest on assumed lifespans. the architect's role may extend into long-term material stewardship.</p>
+      <p style="margin-top:28px"><a href="https://ilkyazs7.github.io/temporal-timber-tools/tools/maintenance/">continue in maintenance →</a></p>
+    </section>
+
+    <footer>
+      <p class="grey">the full paper is in review · available on request</p>
+      <p style="margin-top:16px"><a class="grey" href="../">← temporal timber</a></p>
+    </footer>
+  </main>
+</body>
+</html>
